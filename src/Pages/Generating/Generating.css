@@ -1,0 +1,90 @@
+.generating {
+  width: 600px;
+  margin: 0 auto;
+  padding-top: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.generating__spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 5px solid #dce6f0;
+  border-top-color: #1f4e79;
+  animation: generating-spin 0.9s linear infinite;
+}
+
+@keyframes generating-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.generating__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  color: #14263f;
+}
+
+.generating__card {
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid #c9d4de;
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.generating__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.generating__mark {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.generating__mark--done {
+  background: #1d5c2b;
+  color: #ffffff;
+}
+
+.generating__mark--active {
+  background: #1f4e79;
+  box-shadow: 0 0 0 4px #eef4fd;
+}
+
+.generating__mark--pending {
+  border: 2px solid #c9d4de;
+  background: #ffffff;
+}
+
+.generating__text {
+  margin: 0;
+  font-size: 15px;
+  color: #14263f;
+  text-align: right;
+}
+
+.generating__hint {
+  margin: 0;
+  font-size: 13px;
+  color: #8a949e;
+}
