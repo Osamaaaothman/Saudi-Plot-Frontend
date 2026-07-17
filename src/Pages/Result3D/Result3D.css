@@ -1,0 +1,384 @@
+/* Import Almarai Font */
+@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap');
+
+/* ============================
+   HOUSE PLAN STYLES
+   ============================ */
+
+.house-plan-wrapper {
+  min-height: 100vh;
+  background-color: #F0F2F5;
+  font-family: 'Almarai', sans-serif;
+  direction: rtl;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+}
+
+.house-plan-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Header */
+.house-plan-header {
+  margin-bottom: 1rem;
+}
+
+.house-plan-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.25rem 0;
+}
+
+.house-plan-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Green Banner */
+.house-plan-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background-color: #F0FDF4;
+  color: #16A34A;
+  font-size: 0.875rem;
+  border: 1px solid #DCFCE7;
+}
+
+.banner-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background-color: #22C55E;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+/* Main Layout */
+/* In RTL: first child -> RIGHT side, second child -> LEFT side */
+/* We want: LEFT = 3D View, RIGHT = Sidebar */
+/* So DOM order: Sidebar first, View second */
+
+.house-plan-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+/* Right Sidebar (visually) - placed FIRST in DOM */
+.house-plan-sidebar {
+  width: 100%;
+  max-width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  order: 2; /* In RTL flex, this pushes it to the right visually */
+}
+
+/* Left 3D View (visually) - placed SECOND in DOM */
+.house-plan-view {
+  flex: 1 1 400px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  order: 1; /* In RTL flex, this pushes it to the left visually */
+}
+
+/* View Toggle - at top of view area */
+.view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  justify-content: flex-start;
+}
+
+.toggle-btn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #E5E7EB;
+  background-color: white;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Almarai', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn-active {
+  background-color: #1B4F72;
+  color: white;
+  border-color: #1B4F72;
+}
+
+/* View Container */
+.view-container {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  position: relative;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #7BA4C4;
+}
+
+.house-3d {
+  width: 100%;
+  max-width: 400px;
+}
+
+.house-svg {
+  width: 100%;
+  height: auto;
+}
+
+/* Labels on 3D view */
+.house-label {
+  position: absolute;
+  font-size: 0.75rem;
+  color: #6b7280;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+}
+
+.house-label-main {
+  top: 2rem;
+  right: 2rem;
+}
+
+.house-label-entrance {
+  bottom: 4rem;
+  left: 2rem;
+}
+
+/* Zoom Controls */
+.zoom-controls {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.zoom-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  border: 1px solid #E5E7EB;
+  background-color: white;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Almarai', sans-serif;
+}
+
+/* View Footer */
+.view-footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  padding: 0.5rem;
+}
+
+/* Summary Card */
+.summary-card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+}
+
+.summary-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #F3F4F6;
+  text-align: center;
+}
+
+.summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.summary-value {
+  font-size: 0.75rem;
+  color: #374151;
+  font-weight: 500;
+  text-align: left;
+}
+
+/* Action Buttons */
+.action-btn {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Almarai', sans-serif;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.action-btn-primary {
+  background-color: #1B4F72;
+  color: white;
+}
+
+.action-btn-primary:hover {
+  background-color: #154360;
+}
+
+.action-btn-outline {
+  background-color: white;
+  color: #374151;
+  border: 1px solid #E5E7EB;
+}
+
+.action-btn-outline:hover {
+  background-color: #F9FAFB;
+}
+
+/* File Formats */
+.file-formats {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+}
+
+.file-formats-title {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+}
+
+.file-formats-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.format-btn {
+  flex: 1;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid #E5E7EB;
+  background-color: white;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Almarai', sans-serif;
+}
+
+.format-btn:hover {
+  background-color: #F9FAFB;
+}
+
+/* Price Section */
+.price-section {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  text-align: center;
+}
+
+.price-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin: 0 0 0.25rem 0;
+}
+
+.price-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1B4F72;
+  margin: 0;
+}
+
+/* Extra Buttons */
+.extra-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.extra-btn {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #E5E7EB;
+  background-color: white;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Almarai', sans-serif;
+}
+
+/* Footer Note */
+.footer-note {
+  font-size: 0.65rem;
+  color: #9ca3af;
+  text-align: center;
+  margin: 0.5rem 0 0 0;
+}
+
+/* ============================
+   RESPONSIVE
+   ============================ */
+
+@media (max-width: 768px) {
+  .house-plan-sidebar,
+  .house-plan-view {
+    max-width: 100%;
+    min-width: 100%;
+    order: 0; /* Reset order on mobile */
+  }
+
+  .house-plan-layout {
+    flex-direction: column;
+  }
+}
