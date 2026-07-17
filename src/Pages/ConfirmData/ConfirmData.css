@@ -1,0 +1,100 @@
+.confirm-data {
+  width: 680px;
+  margin: 0 auto;
+  padding: 60px 0 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.confirm-data__badge {
+  background: #e8f6ee;
+  color: #1d5c2b;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.confirm-data__title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+  color: #14263f;
+}
+
+.confirm-data__subtitle {
+  margin: 0 0 8px;
+  font-size: 15px;
+  color: #5a6570;
+}
+
+.confirm-card {
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid #c9d4de;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.confirm-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+  border-top: 1px solid #ebf0f5;
+}
+
+.confirm-row--first {
+  border-top: none;
+}
+
+.confirm-row__info {
+  text-align: right;
+}
+
+.confirm-row__value {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #14263f;
+}
+
+.confirm-row__label {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #8a949e;
+}
+
+.confirm-row__input {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  color: #14263f;
+  border: 1px solid #7a9cc6;
+  border-radius: 8px;
+  padding: 4px 8px;
+  text-align: right;
+  width: 100%;
+}
+
+.confirm-row__edit {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f4e79;
+  text-decoration: underline;
+}
+
+.confirm-data__source {
+  margin: 4px 0 8px;
+  font-size: 12.5px;
+  color: #8a949e;
+}
