@@ -10,20 +10,25 @@ const STEPS = [
   "نختار الأفضل ونجهّز المخطط",
 ];
 
+const MIN_STEP_DELAY = 1000;
+const MAX_STEP_DELAY = 5000;
+
+function randomStepDelay() {
+  return MIN_STEP_DELAY + Math.random() * (MAX_STEP_DELAY - MIN_STEP_DELAY);
+}
+
 export default function Generating() {
   const navigate = useNavigate();
-  const [activeIndex, setActiveIndex] = useState(2);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev < STEPS.length - 1 ? prev + 1 : prev));
-    }, 900);
-    const timeout = setTimeout(() => navigate("/result"), 900 * (STEPS.length - 2) + 700);
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [navigate]);
+    if (activeIndex >= STEPS.length) {
+      const timeout = setTimeout(() => navigate("/result"), 800);
+      return () => clearTimeout(timeout);
+    }
+    const timeout = setTimeout(() => setActiveIndex((prev) => prev + 1), randomStepDelay());
+    return () => clearTimeout(timeout);
+  }, [activeIndex, navigate]);
 
   return (
     <div className="page">
@@ -35,7 +40,13 @@ export default function Generating() {
         <div className="generating__card">
           {STEPS.map((step, index) => (
             <div
-              className={`generating__row ${index > activeIndex ? "generating__row--pending" : ""}`}
+              className={`generating__row ${
+                index === activeIndex
+                  ? "generating__row--active"
+                  : index > activeIndex
+                    ? "generating__row--pending"
+                    : ""
+              }`}
               key={step}
             >
               <span
