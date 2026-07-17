@@ -34,7 +34,10 @@ export default function Generating() {
 
         <div className="generating__card">
           {STEPS.map((step, index) => (
-            <div className="generating__row" key={step}>
+            <div
+              className={`generating__row ${index > activeIndex ? "generating__row--pending" : ""}`}
+              key={step}
+            >
               <span
                 className={`generating__mark ${
                   index < activeIndex

@@ -10,11 +10,12 @@
 }
 
 .generating__spinner {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  border: 5px solid #dce6f0;
+  border: 5px solid transparent;
   border-top-color: #1f4e79;
+  border-right-color: #1f4e79;
   animation: generating-spin 0.9s linear infinite;
 }
 
@@ -51,29 +52,34 @@
 
 .generating__mark {
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+  width: 18px;
+  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
 }
 
 .generating__mark--done {
-  background: #1d5c2b;
-  color: #ffffff;
+  color: #3d994f;
 }
 
-.generating__mark--active {
+.generating__mark--active::before,
+.generating__mark--pending::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.generating__mark--active::before {
   background: #1f4e79;
-  box-shadow: 0 0 0 4px #eef4fd;
 }
 
-.generating__mark--pending {
-  border: 2px solid #c9d4de;
+.generating__mark--pending::before {
   background: #ffffff;
+  border: 2px solid #c9d4de;
 }
 
 .generating__text {
@@ -81,6 +87,10 @@
   font-size: 15px;
   color: #14263f;
   text-align: right;
+}
+
+.generating__row--pending .generating__text {
+  color: #8a949e;
 }
 
 .generating__hint {
