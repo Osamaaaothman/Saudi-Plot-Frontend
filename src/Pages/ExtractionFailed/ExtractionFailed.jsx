@@ -22,7 +22,7 @@ export default function ExtractionFailed() {
 
   function handleContinue() {
     if (!isComplete) return;
-    navigate("/family-questions", { state: { landData: values } });
+    navigate("/questions/1", { state: { landData: values } });
   }
 
   return (

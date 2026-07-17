@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import Upload from "./Pages/Upload/Upload";
 import Result from "./Pages/Result/Result";
 import ExtractionFailed from "./Pages/ExtractionFailed/ExtractionFailed";
-import FamilyQuestionsIntro from "./Pages/FamilyQuestionsIntro/FamilyQuestionsIntro";
 import ConfirmData from "./Pages/ConfirmData/ConfirmData";
 import Generating from "./Pages/Generating/Generating";
 import Question1 from "./Pages/Question1/Question1";
@@ -20,7 +19,6 @@ export default function App() {
       <Route path="/" element={<Upload />} />
       <Route path="/result" element={<Result />} />
       <Route path="/extraction-failed" element={<ExtractionFailed />} />
-      <Route path="/family-questions" element={<FamilyQuestionsIntro />} />
       <Route path="/confirm-data" element={<ConfirmData />} />
       <Route path="/generating" element={<Generating />} />
       <Route path="/questions/1" element={<Question1 />} />

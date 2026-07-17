@@ -69,7 +69,7 @@ export default function ConfirmData() {
           المصدر: صك إلكتروني رقم 3450106202034 — وزارة العدل
         </p>
 
-        <Button fullWidth onClick={() => navigate("/family-questions")}>
+        <Button fullWidth onClick={() => navigate("/questions/1")}>
           البيانات صحيحة — متابعة إلى أسئلة الأسرة
         </Button>
       </main>
