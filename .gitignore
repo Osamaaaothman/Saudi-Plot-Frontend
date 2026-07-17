@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Figma design reference exports (not part of the app)
+/ui_png/

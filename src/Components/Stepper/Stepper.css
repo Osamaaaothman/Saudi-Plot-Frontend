@@ -1,0 +1,51 @@
+.stepper-row {
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid #c9d4de;
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stepper-row__label {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #14263f;
+}
+
+.stepper-row__controls {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 14px;
+}
+
+.stepper-row__value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #14263f;
+  min-width: 20px;
+  text-align: center;
+}
+
+.stepper-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #eef4fd;
+  border: none;
+  color: #1f4e79;
+  font-size: 18px;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepper-btn:disabled {
+  opacity: 0.4;
+}
