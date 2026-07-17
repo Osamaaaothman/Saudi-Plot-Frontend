@@ -1,0 +1,24 @@
+.navbar {
+  height: 72px;
+  padding: 0 40px;
+  background: #ffffff;
+  border-bottom: 1px solid #c9d4de;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #14263f;
+}
+
+.navbar__lang {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 14px;
+  color: #1f4e79;
+}

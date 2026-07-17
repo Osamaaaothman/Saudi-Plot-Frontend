@@ -1,0 +1,40 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 14px 36px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn--primary {
+  background: #1f4e79;
+  color: #ffffff;
+}
+
+.btn--primary:hover {
+  background: #173e63;
+}
+
+.btn--secondary {
+  background: #ffffff;
+  color: #1f4e79;
+  border: 1.5px solid #1f4e79;
+}
+
+.btn--secondary:hover {
+  background: #f6f8fb;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

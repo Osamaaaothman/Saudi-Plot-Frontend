@@ -1,0 +1,89 @@
+.upload {
+  width: 720px;
+  margin: 0 auto;
+  padding-top: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.upload__step {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f4e79;
+}
+
+.upload__title {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 600;
+  color: #14263f;
+}
+
+.upload__subtitle {
+  margin: 0;
+  font-size: 18px;
+  color: #5a6570;
+}
+
+.upload-card {
+  width: 100%;
+  background: #ffffff;
+  border: 1.5px dashed #7a9cc6;
+  border-radius: 16px;
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.upload-card--dragging {
+  border-color: #1f4e79;
+  background: #f0f5fb;
+}
+
+.upload-card__icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #eef4fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  color: #1f4e79;
+}
+
+.upload-card__label {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #14263f;
+}
+
+.upload-card__hint {
+  margin: 0;
+  font-size: 13px;
+  color: #8a949e;
+}
+
+.upload__manual-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1f4e79;
+  text-decoration: underline;
+}
+
+.upload__privacy {
+  margin: 0;
+  font-size: 13px;
+  color: #8a949e;
+}
