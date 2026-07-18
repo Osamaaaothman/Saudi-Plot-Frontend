@@ -257,6 +257,10 @@
   opacity: 0.85;
 }
 
+.wizard-sidebar__item--pending {
+  border: 1.5px dashed #c9d4de;
+}
+
 .wizard-sidebar__label {
   flex: 1;
   min-width: 0;

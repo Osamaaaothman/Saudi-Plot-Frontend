@@ -44,6 +44,31 @@
   color: #1f4e79;
 }
 
+.space-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #c9d4de;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f4e79;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+}
+
+.space-edit-btn:hover {
+  border-color: #1f4e79;
+  background: #f6f8fb;
+  transform: translateY(-1px);
+}
+
+.space-edit-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
 .space-summary {
   width: 100%;
   box-sizing: border-box;

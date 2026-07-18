@@ -24,7 +24,7 @@ export default function Question6() {
       title="جهّزنا قائمة فراغات بيتك"
       subtitle="من إجاباتك — عدّل بالعدّادات ما تشاء ثم ابدأ التصميم"
       onBack={() => navigate(-1)}
-      onNext={() => navigate("/room-catalog")}
+      onNext={() => navigate("/generating")}
       nextLabel="ابدأ تصميم مخططي ←"
       singleAction
     >
@@ -35,6 +35,21 @@ export default function Question6() {
           </span>
         ))}
       </div>
+
+      <button type="button" className="space-edit-btn" onClick={() => navigate("/room-catalog")}>
+        {/* DOM order (text, icon) so RTL flex places the text at the visual
+            right and the pencil icon at the visual left, matching the design. */}
+        تعديل
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+          <path
+            d="M4 20l1.1-4.4L16.5 4.2a1.5 1.5 0 0 1 2.1 0l1.2 1.2a1.5 1.5 0 0 1 0 2.1L8.4 18.9 4 20Z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
 
       <p className="space-summary">الإجمالي 242م² — يناسب أرضك (2,892م²) بارتياح ✓</p>
     </QuestionLayout>
