@@ -45,12 +45,13 @@
   width: 100%;
   box-sizing: border-box;
   background: #ffffff;
-  border: 1px solid #c9d4de;
+  border: 1px solid #e2e9f0;
   border-radius: 16px;
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  box-shadow: 0 10px 30px rgba(20, 38, 63, 0.06);
 }
 
 .generating__row {

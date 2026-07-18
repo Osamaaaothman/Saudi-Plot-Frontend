@@ -57,12 +57,23 @@
   flex: 0 0 380px;
   box-sizing: border-box;
   background: #ffffff;
-  border: 1px solid #c9d4de;
+  border: 1px solid #e2e9f0;
   border-radius: 16px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  box-shadow: 0 10px 30px rgba(20, 38, 63, 0.06);
+  position: sticky;
+  top: 24px;
+}
+
+.room-catalog__tag {
+  transition: transform 0.15s ease;
+}
+
+.room-catalog__tag:hover {
+  transform: translateY(-2px);
 }
 
 .room-catalog__summary-header {

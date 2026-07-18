@@ -25,7 +25,7 @@ export default function Upload() {
   }
 
   return (
-    <div className="page">
+    <div className="page upload-page">
       <Navbar />
       <main className="upload">
         <p className="upload__step">الخطوة 1 من 3 — الصك</p>

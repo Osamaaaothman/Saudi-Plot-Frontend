@@ -51,9 +51,26 @@
   width: 100%;
   box-sizing: border-box;
   background: #ffffff;
-  border: 1px solid #c9d4de;
+  border: 1px solid #e2e9f0;
   border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(20, 38, 63, 0.06);
+}
+
+.confirm-row {
+  transition: background-color 0.15s ease;
+}
+
+.confirm-row:hover {
+  background: #f8fafc;
+}
+
+.confirm-row__edit {
+  transition: color 0.15s ease;
+}
+
+.confirm-row__edit:hover {
+  color: #14263f;
 }
 
 .confirm-row {
