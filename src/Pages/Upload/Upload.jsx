@@ -4,6 +4,7 @@ import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
 import { useFormStore } from "../../Store/useFormStore";
 import { analyzeDeed, validateFile } from "../../utils/geminiService";
+import { scanQRCodesFromImage } from "../../utils/qrScanner";
 import "./Upload.css";
 
 const STEPS = [
@@ -43,10 +44,33 @@ export default function Upload() {
       return;
     }
 
+    // Start QR scan immediately (fast, local) — runs in parallel with Gemini
+    const qrScanPromise = scanQRCodesFromImage(file);
+
     try {
       const result = await analyzeDeed(file, (step) => setAnalyzeStatus(step));
-      setAnalyzeStatus("done");
+
+      // QR scan is almost certainly done by now (Gemini takes much longer)
+      const qrData = await qrScanPromise;
+
+      // Inject browser-scanned QR data when Gemini couldn't decode QR codes
+      if (qrData.codes.length > 0) {
+        const geminiDecodedAny = result.qr_codes?.some((qr) => qr.decoded_text);
+        if (!geminiDecodedAny) {
+          result.qr_codes = qrData.codes.map((code) => ({
+            exists: true,
+            decoded_text: code,
+            type: "browser_scan",
+          }));
+        }
+      }
+      // Store extracted coordinates separately for easy access in ConfirmData
+      if (qrData.coordinates) {
+        result._coordinates = qrData.coordinates;
+      }
+
       setExtractedDeedRaw(result);
+      setAnalyzeStatus("done");
       setTimeout(() => navigate("/confirm-data"), 950);
     } catch (err) {
       setAnalyzeStatus("idle");
@@ -218,18 +242,8 @@ export default function Upload() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
-                      <line
-                        x1="16" y1="13" x2="8" y2="13"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                      />
-                      <line
-                        x1="16" y1="17" x2="8" y2="17"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                      />
+                      <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                      <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                     </svg>
                   </div>
                   <h3 className="upload-analyzing__title">جارٍ تحليل صكّك</h3>
@@ -241,35 +255,17 @@ export default function Upload() {
                     const state = getStepState(step.id, analyzeStatus);
                     return (
                       <div key={step.id} className={`analyze-step analyze-step--${state}`}>
-                        {/* RTL: label first (visual right), icon second (visual left) */}
                         <span className="analyze-step__label">{step.label}</span>
                         <div className="analyze-step__icon" aria-hidden="true">
                           {state === "done" && (
                             <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
-                              <path
-                                d="M5 13l4 4L19 7"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
+                              <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                           )}
                           {state === "active" && (
-                            <svg
-                              className="analyze-step__spinner"
-                              viewBox="0 0 24 24"
-                              width="16"
-                              height="16"
-                              fill="none"
-                            >
+                            <svg className="analyze-step__spinner" viewBox="0 0 24 24" width="16" height="16" fill="none">
                               <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.25)" strokeWidth="2.5" />
-                              <path
-                                d="M21 12a9 9 0 0 0-9-9"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                              />
+                              <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
                             </svg>
                           )}
                           {state === "pending" && (
