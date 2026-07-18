@@ -60,8 +60,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.stepper-btn:hover:not(:disabled) {
+  background: #dbe8f8;
+}
+
+.stepper-btn:active:not(:disabled) {
+  transform: scale(0.88);
+}
+
+.stepper-btn:focus-visible {
+  outline: 3px solid rgba(31, 78, 121, 0.3);
+  outline-offset: 2px;
 }
 
 .stepper-btn:disabled {
   opacity: 0.4;
+}
+
+.stepper-row {
+  transition: border-color 0.15s ease, box-shadow 0.2s ease;
+}
+
+.stepper-row:hover {
+  border-color: #7a9cc6;
+  box-shadow: 0 4px 14px rgba(20, 38, 63, 0.06);
 }
