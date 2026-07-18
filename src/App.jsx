@@ -15,7 +15,6 @@ import Question6 from "./Pages/Question6/Question6";
 import RoomCatalog from "./Pages/RoomCatalog/RoomCatalog";
 import Result3D from "./Pages/Result3D/Result3D";
 import { SlideDirectionContext } from "./Components/QuestionLayout/SlideDirectionContext";
-import QuestionWizardShell from "./Components/QuestionLayout/QuestionWizardShell";
 
 const STEP_ORDER = [
   "/questions/1",
@@ -45,26 +44,17 @@ function QuestionsOutlet() {
     setPrevIndex(currentIndex);
   }
 
-  const animatedContent = (
-    <MotionConfig reducedMotion="user">
-      <SlideDirectionContext.Provider value={direction}>
-        <AnimatePresence initial={false} custom={direction}>
-          {element && cloneElement(element, { key: location.pathname })}
-        </AnimatePresence>
-      </SlideDirectionContext.Provider>
-    </MotionConfig>
+  return (
+    <div className="carousel-viewport">
+      <MotionConfig reducedMotion="user">
+        <SlideDirectionContext.Provider value={direction}>
+          <AnimatePresence initial={false} custom={direction}>
+            {element && cloneElement(element, { key: location.pathname })}
+          </AnimatePresence>
+        </SlideDirectionContext.Provider>
+      </MotionConfig>
+    </div>
   );
-
-  // /questions/1..6 share a persistent header + sidebar shell that never
-  // remounts between steps, so only the card content animates. /room-catalog
-  // keeps its own full-page look (plain Navbar, no wizard chrome).
-  if (location.pathname.startsWith("/questions/")) {
-    return (
-      <QuestionWizardShell pathname={location.pathname}>{animatedContent}</QuestionWizardShell>
-    );
-  }
-
-  return <div className="carousel-viewport">{animatedContent}</div>;
 }
 
 export default function App() {
