@@ -1,6 +1,9 @@
+import { motion } from "framer-motion";
 import Button from "../Button/Button";
 import WizardHeader from "../WizardHeader/WizardHeader";
 import { WIZARD_STEPS } from "./wizardSteps";
+import { useSlideDirection } from "./SlideDirectionContext";
+import { slideVariants, slideTransition } from "./slideVariants";
 import "./QuestionLayout.css";
 
 export default function QuestionLayout({
@@ -18,9 +21,18 @@ export default function QuestionLayout({
 }) {
   const progress = stepIndex / WIZARD_STEPS.length;
   const StepIcon = WIZARD_STEPS[stepIndex - 1]?.Icon;
+  const direction = useSlideDirection();
 
   return (
-    <div className="page">
+    <motion.div
+      className="page page--carousel"
+      custom={direction}
+      variants={slideVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={slideTransition}
+    >
       <WizardHeader progress={progress} onBack={onBack} onNext={singleAction ? undefined : onNext} />
       <main className="question-wizard">
         {/* Sidebar is first in DOM so RTL flex places it on the visual RIGHT,
@@ -81,6 +93,6 @@ export default function QuestionLayout({
           )}
         </section>
       </main>
-    </div>
+    </motion.div>
   );
 }

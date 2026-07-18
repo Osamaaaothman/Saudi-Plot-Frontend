@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
 import Stepper from "../../Components/Stepper/Stepper";
 import { useFormStore } from "../../Store/useFormStore";
+import { useSlideDirection } from "../../Components/QuestionLayout/SlideDirectionContext";
+import { slideVariants, slideTransition } from "../../Components/QuestionLayout/slideVariants";
 import "./RoomCatalog.css";
 
 const CATEGORIES = [
@@ -64,9 +67,18 @@ export default function RoomCatalog() {
   const setRoomCount = useFormStore((state) => state.setRoomCount);
 
   const totalRooms = Object.values(counts).reduce((sum, value) => sum + value, 0);
+  const direction = useSlideDirection();
 
   return (
-    <div className="page">
+    <motion.div
+      className="page page--carousel"
+      custom={direction}
+      variants={slideVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={slideTransition}
+    >
       <Navbar />
       <main className="room-catalog">
         <h1 className="room-catalog__title">
@@ -119,6 +131,6 @@ export default function RoomCatalog() {
           </aside>
         </div>
       </main>
-    </div>
+    </motion.div>
   );
 }
