@@ -7,9 +7,23 @@
   gap: 30px;
 }
 
-.question-wizard__card {
+/* Wraps the animated card. Uses CSS grid with both the exiting and
+   entering card sharing one cell, so they stack directly on top of each
+   other during the slide (no position:absolute / height-collapse needed —
+   the grid sizes itself to the taller of the two overlapping cards). */
+.question-wizard__card-slot {
   flex: 1 1 auto;
   min-width: 0;
+  display: grid;
+  overflow-x: clip;
+}
+
+.question-wizard__card-slot > * {
+  grid-area: 1 / 1;
+}
+
+.question-wizard__card {
+  width: 100%;
   box-sizing: border-box;
   background: #ffffff;
   border: 1px solid #e2e9f0;
@@ -326,8 +340,11 @@
     width: 100%;
   }
 
-  .question-wizard__card {
+  .question-wizard__card-slot {
     width: 100%;
+  }
+
+  .question-wizard__card {
     padding: 28px 20px;
     gap: 18px;
   }
