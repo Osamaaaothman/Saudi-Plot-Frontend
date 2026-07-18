@@ -136,24 +136,15 @@ export function validateFile(file) {
   }
 }
 
-export async function analyzeDeed(file, onStatus) {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!apiKey || apiKey.trim() === "") {
-    throw new Error("مفتاح API غير مضبوط. تواصل مع الدعم الفني.");
-  }
+const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 1500;
 
-  onStatus("reading");
-  const base64 = await fileToBase64(file);
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-  const mimeType =
-    file.type ||
-    (/\.pdf$/i.test(file.name)
-      ? "application/pdf"
-      : /\.png$/i.test(file.name)
-        ? "image/png"
-        : "image/jpeg");
-
-  onStatus("sending");
+async function callGeminiOnce(apiKey, base64, mimeType, onStatus) {
   const response = await fetch(`${API_URL}?key=${apiKey.trim()}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -177,7 +168,9 @@ export async function analyzeDeed(file, onStatus) {
     } catch {
       // ignore parse error
     }
-    throw new Error(errorMsg);
+    const error = new Error(errorMsg);
+    error.transient = RETRYABLE_STATUS.has(response.status);
+    throw error;
   }
 
   onStatus("parsing");
@@ -208,4 +201,33 @@ export async function analyzeDeed(file, onStatus) {
   }
 
   return result;
+}
+
+export async function analyzeDeed(file, onStatus) {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey || apiKey.trim() === "") {
+    throw new Error("مفتاح API غير مضبوط. تواصل مع الدعم الفني.");
+  }
+
+  onStatus("reading");
+  const base64 = await fileToBase64(file);
+
+  const mimeType =
+    file.type ||
+    (/\.pdf$/i.test(file.name)
+      ? "application/pdf"
+      : /\.png$/i.test(file.name)
+        ? "image/png"
+        : "image/jpeg");
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    onStatus("sending");
+    try {
+      return await callGeminiOnce(apiKey, base64, mimeType, onStatus);
+    } catch (err) {
+      const isLastAttempt = attempt === MAX_RETRIES;
+      if (!err.transient || isLastAttempt) throw err;
+      await sleep(RETRY_DELAY_MS * (attempt + 1));
+    }
+  }
 }

@@ -14,6 +14,15 @@ const STEPS = [
 ];
 
 const STEP_ORDER = ["reading", "sending", "parsing"];
+const QR_SCAN_TIMEOUT_MS = 8000;
+const EMPTY_QR_RESULT = { codes: [], coordinates: null };
+
+function withTimeout(promise, ms, fallback) {
+  return Promise.race([
+    promise,
+    new Promise((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
 
 function getStepState(stepId, currentStatus) {
   if (currentStatus === "done") return "done";
@@ -44,8 +53,13 @@ export default function Upload() {
       return;
     }
 
-    // Start QR scan immediately (fast, local) — runs in parallel with Gemini
-    const qrScanPromise = scanQRCodesFromImage(file);
+    // Start QR scan immediately (local) — runs in parallel with Gemini.
+    // Capped with a timeout so a pathological PDF can never block navigation.
+    const qrScanPromise = withTimeout(
+      scanQRCodesFromImage(file),
+      QR_SCAN_TIMEOUT_MS,
+      EMPTY_QR_RESULT
+    );
 
     try {
       const result = await analyzeDeed(file, (step) => setAnalyzeStatus(step));

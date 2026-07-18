@@ -1,5 +1,8 @@
 import jsQR from "jsqr";
 
+const PDF_PAGE_SCAN_LIMIT = 3;
+const PDF_RENDER_SCALE = 2.5;
+
 /**
  * Try to parse GPS coordinates out of a QR code's decoded text.
  * Handles URL params, JSON objects, and bare decimal coordinate pairs.
@@ -56,14 +59,14 @@ function tryParseCoordinates(text) {
 }
 
 /**
- * Run jsQR on a canvas sub-region and return the decoded string (or null).
+ * Run jsQR on a sub-region of any canvas-drawable source (image or canvas).
  */
-function scanCanvasRegion(sourceImg, sx, sy, sw, sh) {
+function scanRegion(source, sx, sy, sw, sh) {
   const canvas = document.createElement("canvas");
   canvas.width = sw;
   canvas.height = sh;
   const ctx = canvas.getContext("2d");
-  ctx.drawImage(sourceImg, sx, sy, sw, sh, 0, 0, sw, sh);
+  ctx.drawImage(source, sx, sy, sw, sh, 0, 0, sw, sh);
   const imgData = ctx.getImageData(0, 0, sw, sh);
   const result = jsQR(imgData.data, imgData.width, imgData.height, {
     inversionAttempts: "attemptBoth",
@@ -72,60 +75,110 @@ function scanCanvasRegion(sourceImg, sx, sy, sw, sh) {
 }
 
 /**
- * Scan all QR codes from an image File (JPG/PNG).
- * Scans the full image and each of the four quadrants to maximise QR detection
- * when two QR codes appear in different parts of the deed.
- *
- * Returns { codes: string[], coordinates: { lat, lng, from } | null }
+ * Scan the full source plus each of its four quadrants — improves detection
+ * when multiple QR codes sit in different corners of the same page.
  */
-export function scanQRCodesFromImage(file) {
-  if (file.type === "application/pdf") {
-    // PDF rendering in the browser requires PDF.js — skip for now.
-    return Promise.resolve({ codes: [], coordinates: null });
+function scanAllRegions(source, w, h, found) {
+  const regions = [
+    [0, 0, w, h],
+    [0, 0, Math.ceil(w / 2), Math.ceil(h / 2)],
+    [Math.floor(w / 2), 0, Math.ceil(w / 2), Math.ceil(h / 2)],
+    [0, Math.floor(h / 2), Math.ceil(w / 2), Math.ceil(h / 2)],
+    [Math.floor(w / 2), Math.floor(h / 2), Math.ceil(w / 2), Math.ceil(h / 2)],
+  ];
+  for (const [sx, sy, sw, sh] of regions) {
+    const code = scanRegion(source, sx, sy, sw, sh);
+    if (code) found.add(code);
   }
+}
 
+function loadImage(file) {
   return new Promise((resolve) => {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
-
     img.onload = () => {
-      const w = img.naturalWidth;
-      const h = img.naturalHeight;
-      const found = new Set();
-
-      const regions = [
-        [0, 0, w, h],                                          // full image
-        [0, 0, Math.ceil(w / 2), Math.ceil(h / 2)],            // top-left
-        [Math.floor(w / 2), 0, Math.ceil(w / 2), Math.ceil(h / 2)],  // top-right
-        [0, Math.floor(h / 2), Math.ceil(w / 2), Math.ceil(h / 2)],  // bottom-left
-        [Math.floor(w / 2), Math.floor(h / 2), Math.ceil(w / 2), Math.ceil(h / 2)], // bottom-right
-      ];
-
-      for (const [sx, sy, sw, sh] of regions) {
-        const code = scanCanvasRegion(img, sx, sy, sw, sh);
-        if (code) found.add(code);
-      }
-
       URL.revokeObjectURL(objectUrl);
-
-      const codes = [...found];
-      let coordinates = null;
-      for (const code of codes) {
-        const coord = tryParseCoordinates(code);
-        if (coord) {
-          coordinates = coord;
-          break;
-        }
-      }
-
-      resolve({ codes, coordinates });
+      resolve(img);
     };
-
     img.onerror = () => {
       URL.revokeObjectURL(objectUrl);
-      resolve({ codes: [], coordinates: null });
+      resolve(null);
     };
-
     img.src = objectUrl;
   });
+}
+
+let workerConfigured = false;
+
+async function getPdfjs() {
+  const pdfjsLib = await import("pdfjs-dist");
+  if (!workerConfigured) {
+    const workerUrl = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+    workerConfigured = true;
+  }
+  return pdfjsLib;
+}
+
+/**
+ * Render each page of a PDF to an offscreen canvas and collect QR codes
+ * found across all pages (capped for performance).
+ */
+async function scanPdf(file) {
+  const found = new Set();
+  try {
+    const pdfjsLib = await getPdfjs();
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pageCount = Math.min(pdf.numPages, PDF_PAGE_SCAN_LIMIT);
+
+    for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const viewport = page.getViewport({ scale: PDF_RENDER_SCALE });
+
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext("2d");
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      scanAllRegions(canvas, canvas.width, canvas.height, found);
+    }
+  } catch {
+    // PDF failed to render/parse — return whatever was found (likely nothing)
+  }
+  return found;
+}
+
+/**
+ * Scan all QR codes from a deed file (image or PDF).
+ * For images: scans the raster directly.
+ * For PDFs: renders each page to canvas first, then scans (up to 3 pages).
+ *
+ * Returns { codes: string[], coordinates: { lat, lng, from } | null }
+ */
+export async function scanQRCodesFromImage(file) {
+  const found = new Set();
+
+  if (file.type === "application/pdf") {
+    const pdfCodes = await scanPdf(file);
+    pdfCodes.forEach((code) => found.add(code));
+  } else {
+    const img = await loadImage(file);
+    if (img) {
+      scanAllRegions(img, img.naturalWidth, img.naturalHeight, found);
+    }
+  }
+
+  const codes = [...found];
+  let coordinates = null;
+  for (const code of codes) {
+    const coord = tryParseCoordinates(code);
+    if (coord) {
+      coordinates = coord;
+      break;
+    }
+  }
+
+  return { codes, coordinates };
 }
