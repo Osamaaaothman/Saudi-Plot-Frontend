@@ -34,6 +34,10 @@ export const useFormStore = create((set, get) => ({
   // Static deed data (mock; replaced by backend OCR later).
   deed: deedTemplate,
 
+  // Raw JSON extracted by Gemini from the uploaded deed image.
+  extractedDeedRaw: null,
+  setExtractedDeedRaw: (data) => set({ extractedDeedRaw: data }),
+
   // Collected answers (UI-friendly form).
   familyMembers: { adults: 4, children: 3 },
   hasElderly: true,

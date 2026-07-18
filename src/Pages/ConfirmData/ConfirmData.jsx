@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
+import { useFormStore } from "../../Store/useFormStore";
 import "./ConfirmData.css";
 
-const INITIAL_FIELDS = [
+const FALLBACK_FIELDS = [
   { id: "area", label: "المساحة الإجمالية", value: "2,892.3 م²" },
   { id: "north", label: "الحد الشمالي", value: "70 م — على شارع عرض 20 م" },
   { id: "south", label: "الحد الجنوبي", value: "68.78 م — على شارع عرض 15 م" },
@@ -12,10 +13,49 @@ const INITIAL_FIELDS = [
   { id: "west", label: "الحد الغربي", value: "42.5 م — على شارع عرض 41 م" },
 ];
 
+function buildFieldsFromDeed(deed) {
+  if (!deed) return null;
+  const { property, boundaries } = deed;
+  if (!property && !boundaries) return null;
+
+  return [
+    {
+      id: "area",
+      label: "المساحة الإجمالية",
+      value: property?.area_m2 != null ? `${property.area_m2} م²` : "—",
+    },
+    {
+      id: "north",
+      label: "الحد الشمالي",
+      value: boundaries?.north || "—",
+    },
+    {
+      id: "south",
+      label: "الحد الجنوبي",
+      value: boundaries?.south || "—",
+    },
+    {
+      id: "east",
+      label: "الحد الشرقي",
+      value: boundaries?.east || "—",
+    },
+    {
+      id: "west",
+      label: "الحد الغربي",
+      value: boundaries?.west || "—",
+    },
+  ];
+}
+
 export default function ConfirmData() {
   const navigate = useNavigate();
-  const [fields, setFields] = useState(INITIAL_FIELDS);
+  const extractedDeedRaw = useFormStore((state) => state.extractedDeedRaw);
+  const deedFields = buildFieldsFromDeed(extractedDeedRaw);
+
+  const [fields, setFields] = useState(deedFields ?? FALLBACK_FIELDS);
   const [editingId, setEditingId] = useState(null);
+
+  const docNumber = extractedDeedRaw?.document?.document_number;
 
   function updateValue(id, value) {
     setFields((prev) => prev.map((field) => (field.id === id ? { ...field, value } : field)));
@@ -66,7 +106,9 @@ export default function ConfirmData() {
         </div>
 
         <p className="confirm-data__source">
-          المصدر: صك إلكتروني رقم 3450106202034 — وزارة العدل
+          {docNumber
+            ? `المصدر: صك إلكتروني رقم ${docNumber} — وزارة العدل`
+            : "المصدر: وزارة العدل"}
         </p>
 
         <Button fullWidth onClick={() => navigate("/questions/1")}>

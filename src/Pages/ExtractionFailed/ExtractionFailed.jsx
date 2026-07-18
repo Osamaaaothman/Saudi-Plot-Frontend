@@ -16,6 +16,7 @@ export default function ExtractionFailed() {
   // The error banner only shows when we actually failed to read the deed
   // (backend/OCR error). Choosing "enter manually" from Upload shows just the form.
   const extractionFailed = Boolean(location.state?.extractionFailed);
+  const errorMessage = location.state?.errorMessage || "لم نستطع قراءة بيانات الصك";
   const [values, setValues] = useState({ length: "", width: "", street: "" });
 
   const isComplete = FIELDS.every((field) => values[field.key].trim() !== "");
@@ -39,9 +40,7 @@ export default function ExtractionFailed() {
               <p className="error-banner__mark">!</p>
               <div className="error-banner__text">
                 <p className="error-banner__title">لم نستطع قراءة بيانات الصك</p>
-                <p className="error-banner__subtitle">
-                  قد تكون الصورة غير واضحة أو بصيغة مختلفة — لا مشكلة، لديك خياران:
-                </p>
+                <p className="error-banner__subtitle">{errorMessage}</p>
               </div>
             </div>
 

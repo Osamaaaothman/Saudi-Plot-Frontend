@@ -2,20 +2,61 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
+import { useFormStore } from "../../Store/useFormStore";
+import { analyzeDeed, validateFile } from "../../utils/geminiService";
 import "./Upload.css";
+
+const STEPS = [
+  { id: "reading", label: "قراءة الملف" },
+  { id: "sending", label: "التواصل مع الذكاء الاصطناعي" },
+  { id: "parsing", label: "استخراج بيانات الصك" },
+];
+
+const STEP_ORDER = ["reading", "sending", "parsing"];
+
+function getStepState(stepId, currentStatus) {
+  if (currentStatus === "done") return "done";
+  const stepIdx = STEP_ORDER.indexOf(stepId);
+  const currentIdx = STEP_ORDER.indexOf(currentStatus);
+  if (currentIdx === -1) return "pending";
+  if (currentIdx > stepIdx) return "done";
+  if (currentIdx === stepIdx) return "active";
+  return "pending";
+}
 
 export default function Upload() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isReading, setIsReading] = useState(false);
+  const [analyzeStatus, setAnalyzeStatus] = useState("idle");
+  const [fileError, setFileError] = useState(null);
+  const setExtractedDeedRaw = useFormStore((state) => state.setExtractedDeedRaw);
 
-  function handleFile(file) {
-    if (!file || isReading) return;
-    setIsReading(true);
-    setTimeout(() => {
-      navigate("/confirm-data", { state: { fileName: file.name } });
-    }, 900);
+  async function handleFile(file) {
+    if (!file || analyzeStatus !== "idle") return;
+    setFileError(null);
+
+    try {
+      validateFile(file);
+    } catch (err) {
+      setFileError(err.message);
+      return;
+    }
+
+    try {
+      const result = await analyzeDeed(file, (step) => setAnalyzeStatus(step));
+      setAnalyzeStatus("done");
+      setExtractedDeedRaw(result);
+      setTimeout(() => navigate("/confirm-data"), 950);
+    } catch (err) {
+      setAnalyzeStatus("idle");
+      navigate("/manual-entry", {
+        state: {
+          extractionFailed: true,
+          errorMessage: err.message || "لم نستطع قراءة بيانات الصك",
+        },
+      });
+    }
   }
 
   function handleDrop(event) {
@@ -23,6 +64,8 @@ export default function Upload() {
     setIsDragging(false);
     handleFile(event.dataTransfer.files?.[0]);
   }
+
+  const isAnalyzing = analyzeStatus !== "idle";
 
   return (
     <div className="page upload-page">
@@ -35,13 +78,14 @@ export default function Upload() {
         </p>
 
         <div
-          className={`upload-card ${isDragging ? "upload-card--dragging" : ""}`}
+          className={`upload-card${isDragging ? " upload-card--dragging" : ""}${isAnalyzing ? " upload-card--disabled" : ""}`}
           onDragOver={(event) => {
             event.preventDefault();
-            setIsDragging(true);
+            if (!isAnalyzing) setIsDragging(true);
           }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
+          onClick={() => !isAnalyzing && fileInputRef.current?.click()}
         >
           <div className="upload-card__icon">
             <svg viewBox="0 0 24 24" width="30" height="30" fill="none" aria-hidden="true">
@@ -61,10 +105,14 @@ export default function Upload() {
               />
             </svg>
           </div>
-          <p className="upload-card__label">
-            {isReading ? "جارٍ قراءة الصك..." : "اسحب ملف الصك وأفلته هنا"}
-          </p>
-          <Button onClick={() => fileInputRef.current?.click()} disabled={isReading}>
+          <p className="upload-card__label">اسحب ملف الصك وأفلته هنا</p>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              fileInputRef.current?.click();
+            }}
+            disabled={isAnalyzing}
+          >
             اختر ملفًا من جهازك
           </Button>
           <input
@@ -76,6 +124,8 @@ export default function Upload() {
           />
           <p className="upload-card__hint">PDF أو صورة — وثيقة البورصة العقارية أو الصك التقليدي</p>
         </div>
+
+        {fileError && <p className="upload__file-error">{fileError}</p>}
 
         <svg
           className="upload__manual-icon"
@@ -103,9 +153,11 @@ export default function Upload() {
           type="button"
           className="upload__manual-link"
           onClick={() => navigate("/manual-entry")}
+          disabled={isAnalyzing}
         >
           أو أدخل بيانات الأرض يدويًا ←
         </button>
+
         <p className="upload__privacy">
           <svg
             className="upload__privacy-icon"
@@ -126,6 +178,115 @@ export default function Upload() {
           بيانات صكّك تُعالج بأمان ولا تُشارك مع أي جهة خارجية
         </p>
       </main>
+
+      {/* ── Analyzing overlay ── */}
+      {isAnalyzing && (
+        <div className="upload-analyzing" role="dialog" aria-modal="true" aria-label="جارٍ تحليل الصك">
+          <div className="upload-analyzing__card">
+            {analyzeStatus === "done" ? (
+              <div className="upload-analyzing__success">
+                <div className="upload-analyzing__success-icon">
+                  <svg viewBox="0 0 24 24" width="38" height="38" fill="none" aria-hidden="true">
+                    <path
+                      d="M5 13l4 4L19 7"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <p className="upload-analyzing__success-title">اكتمل التحليل!</p>
+                <p className="upload-analyzing__success-sub">جارٍ الانتقال للتحقق من البيانات...</p>
+              </div>
+            ) : (
+              <>
+                <div className="upload-analyzing__header">
+                  <div className="upload-analyzing__scan">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" aria-hidden="true">
+                      <path
+                        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <polyline
+                        points="14 2 14 8 20 8"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <line
+                        x1="16" y1="13" x2="8" y2="13"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                      />
+                      <line
+                        x1="16" y1="17" x2="8" y2="17"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="upload-analyzing__title">جارٍ تحليل صكّك</h3>
+                  <p className="upload-analyzing__subtitle">يرجى الانتظار قليلًا...</p>
+                </div>
+
+                <div className="upload-analyzing__steps">
+                  {STEPS.map((step) => {
+                    const state = getStepState(step.id, analyzeStatus);
+                    return (
+                      <div key={step.id} className={`analyze-step analyze-step--${state}`}>
+                        {/* RTL: label first (visual right), icon second (visual left) */}
+                        <span className="analyze-step__label">{step.label}</span>
+                        <div className="analyze-step__icon" aria-hidden="true">
+                          {state === "done" && (
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
+                              <path
+                                d="M5 13l4 4L19 7"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          )}
+                          {state === "active" && (
+                            <svg
+                              className="analyze-step__spinner"
+                              viewBox="0 0 24 24"
+                              width="16"
+                              height="16"
+                              fill="none"
+                            >
+                              <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.25)" strokeWidth="2.5" />
+                              <path
+                                d="M21 12a9 9 0 0 0-9-9"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                          )}
+                          {state === "pending" && (
+                            <svg viewBox="0 0 24 24" width="8" height="8">
+                              <circle cx="12" cy="12" r="5" fill="currentColor" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -25,3 +25,8 @@ dist-ssr
 
 # Figma design reference exports (not part of the app)
 /ui_png/
+
+# Environment — contains API keys, never commit
+.env
+.env.local
+.env.*.local
