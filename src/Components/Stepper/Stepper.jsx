@@ -1,9 +1,12 @@
 import "./Stepper.css";
 
-export default function Stepper({ label, value, onChange, min = 0, max = 20 }) {
+export default function Stepper({ label, value, onChange, min = 0, max = 20, badge }) {
   return (
     <div className="stepper-row">
-      <p className="stepper-row__label">{label}</p>
+      <div className="stepper-row__label-group">
+        <p className="stepper-row__label">{label}</p>
+        {badge && <span className="stepper-row__badge">{badge}</span>}
+      </div>
       <div className="stepper-row__controls">
         <button
           type="button"

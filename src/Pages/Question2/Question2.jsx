@@ -8,8 +8,8 @@ export default function Question2() {
 
   return (
     <QuestionLayout
-      stepLabel="السؤال 2 من 6 — عن أسرتك وبيتك"
-      progress={2 / 6}
+      stepIndex={2}
+      stepLabel="السؤال 2 من 6"
       title="هل في أسرتك كبار سن أو من يحتاج سهولة حركة؟"
       subtitle="سنجعل لهم غرفة نوم بحمّام ميسّر في مكان مريح"
       onBack={() => navigate(-1)}

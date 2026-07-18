@@ -10,8 +10,8 @@ export default function Question1() {
 
   return (
     <QuestionLayout
-      stepLabel="السؤال 1 من 6 — عن أسرتك وبيتك"
-      progress={1 / 6}
+      stepIndex={1}
+      stepLabel="السؤال 1 من 6"
       title="كم عدد أفراد أسرتك؟"
       subtitle="يساعدنا هذا على حساب عدد الغرف المناسب"
       onBack={() => navigate(-1)}
