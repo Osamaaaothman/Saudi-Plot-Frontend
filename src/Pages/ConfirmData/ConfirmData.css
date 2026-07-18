@@ -1,5 +1,6 @@
 .confirm-data {
   width: 680px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 60px 0 80px;
   display: flex;
@@ -7,6 +8,21 @@
   align-items: center;
   gap: 16px;
   text-align: center;
+}
+
+@media (max-width: 768px) {
+  .confirm-data {
+    width: 100%;
+    padding: 40px 20px 60px;
+  }
+
+  .confirm-data__title {
+    font-size: 26px;
+  }
+
+  .confirm-row {
+    padding: 16px;
+  }
 }
 
 .confirm-data__badge {

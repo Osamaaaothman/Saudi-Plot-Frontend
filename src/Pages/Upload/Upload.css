@@ -91,4 +91,35 @@
   margin: 0;
   font-size: 13px;
   color: #8a949e;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.upload__privacy-icon {
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .upload {
+    width: 100%;
+    padding: 80px 20px 40px;
+    gap: 16px;
+  }
+
+  .upload__title {
+    font-size: 28px;
+  }
+
+  .upload__subtitle {
+    font-size: 15px;
+  }
+
+  .upload-card {
+    padding: 32px 20px;
+  }
+
+  .upload__privacy {
+    text-align: center;
+  }
 }

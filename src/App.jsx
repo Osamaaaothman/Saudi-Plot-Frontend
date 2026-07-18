@@ -18,7 +18,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Upload />} />
       <Route path="/result" element={<Result />} />
-      <Route path="/extraction-failed" element={<ExtractionFailed />} />
+      <Route path="/manual-entry" element={<ExtractionFailed />} />
       <Route path="/confirm-data" element={<ConfirmData />} />
       <Route path="/generating" element={<Generating />} />
       <Route path="/questions/1" element={<Question1 />} />

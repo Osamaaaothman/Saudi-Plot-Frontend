@@ -77,3 +77,19 @@
   font-size: 14px;
   color: #1f4e79;
 }
+
+@media (max-width: 768px) {
+  .wizard-header {
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .wizard-header__subtitle,
+  .wizard-header__mini-nav {
+    display: none;
+  }
+
+  .wizard-header__brand {
+    order: -1;
+  }
+}

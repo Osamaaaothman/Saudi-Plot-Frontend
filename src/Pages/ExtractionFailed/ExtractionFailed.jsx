@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
 import "./ExtractionFailed.css";
@@ -12,6 +12,10 @@ const FIELDS = [
 
 export default function ExtractionFailed() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // The error banner only shows when we actually failed to read the deed
+  // (backend/OCR error). Choosing "enter manually" from Upload shows just the form.
+  const extractionFailed = Boolean(location.state?.extractionFailed);
   const [values, setValues] = useState({ length: "", width: "", street: "" });
 
   const isComplete = FIELDS.every((field) => values[field.key].trim() !== "");
@@ -29,21 +33,25 @@ export default function ExtractionFailed() {
     <div className="page">
       <Navbar />
       <main className="extraction-failed">
-        <div className="error-banner">
-          <p className="error-banner__mark">!</p>
-          <div className="error-banner__text">
-            <p className="error-banner__title">لم نستطع قراءة بيانات الصك</p>
-            <p className="error-banner__subtitle">
-              قد تكون الصورة غير واضحة أو بصيغة مختلفة — لا مشكلة، لديك خياران:
-            </p>
-          </div>
-        </div>
+        {extractionFailed && (
+          <>
+            <div className="error-banner">
+              <p className="error-banner__mark">!</p>
+              <div className="error-banner__text">
+                <p className="error-banner__title">لم نستطع قراءة بيانات الصك</p>
+                <p className="error-banner__subtitle">
+                  قد تكون الصورة غير واضحة أو بصيغة مختلفة — لا مشكلة، لديك خياران:
+                </p>
+              </div>
+            </div>
 
-        <Button variant="secondary" onClick={() => navigate("/")}>
-          إعادة المحاولة بصورة أوضح
-        </Button>
+            <Button variant="secondary" onClick={() => navigate("/")}>
+              إعادة المحاولة بصورة أوضح
+            </Button>
 
-        <p className="extraction-failed__divider">— أو —</p>
+            <p className="extraction-failed__divider">— أو —</p>
+          </>
+        )}
 
         <div className="manual-form">
           <p className="manual-form__title">أدخل بيانات أرضك يدويًا</p>

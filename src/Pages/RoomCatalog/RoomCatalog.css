@@ -136,3 +136,21 @@
   color: #1d5c2b;
   text-align: right;
 }
+
+@media (max-width: 900px) {
+  .room-catalog {
+    padding: 28px 20px 48px;
+  }
+
+  .room-catalog__layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .room-catalog__summary {
+    flex: 1 1 auto;
+    width: 100%;
+    order: -1;
+    position: static;
+  }
+}

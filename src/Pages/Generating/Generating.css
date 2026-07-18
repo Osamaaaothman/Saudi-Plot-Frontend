@@ -1,5 +1,6 @@
 .generating {
   width: 600px;
+  max-width: 100%;
   margin: 0 auto;
   padding-top: 120px;
   display: flex;
@@ -7,6 +8,14 @@
   align-items: center;
   gap: 20px;
   text-align: center;
+}
+
+@media (max-width: 768px) {
+  .generating {
+    width: 100%;
+    padding: 80px 20px 40px;
+    box-sizing: border-box;
+  }
 }
 
 .generating__spinner {

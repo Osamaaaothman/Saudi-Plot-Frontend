@@ -44,7 +44,22 @@ export default function Upload() {
           onDrop={handleDrop}
         >
           <div className="upload-card__icon">
-            <span>⬆</span>
+            <svg viewBox="0 0 24 24" width="30" height="30" fill="none" aria-hidden="true">
+              <path
+                d="M12 15.5V4m0 0 4 4m-4-4-4 4"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M5 14.5v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
           <p className="upload-card__label">
             {isReading ? "جارٍ قراءة الصك..." : "اسحب ملف الصك وأفلته هنا"}
@@ -87,11 +102,29 @@ export default function Upload() {
         <button
           type="button"
           className="upload__manual-link"
-          onClick={() => navigate("/extraction-failed")}
+          onClick={() => navigate("/manual-entry")}
         >
           أو أدخل بيانات الأرض يدويًا ←
         </button>
-        <p className="upload__privacy">🔒 بيانات صكّك تُعالج بأمان ولا تُشارك مع أي جهة خارجية</p>
+        <p className="upload__privacy">
+          <svg
+            className="upload__privacy-icon"
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            aria-hidden="true"
+          >
+            <rect x="5" y="10.5" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="1.6" />
+            <path
+              d="M8 10.5V8a4 4 0 0 1 8 0v2.5"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          </svg>
+          بيانات صكّك تُعالج بأمان ولا تُشارك مع أي جهة خارجية
+        </p>
       </main>
     </div>
   );
