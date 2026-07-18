@@ -72,6 +72,11 @@
   color: #8a949e;
 }
 
+.upload__manual-icon {
+  color: #8a949e;
+  margin-bottom: -12px;
+}
+
 .upload__manual-link {
   background: none;
   border: none;

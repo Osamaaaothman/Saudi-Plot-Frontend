@@ -1,10 +1,11 @@
-import Navbar from "../Navbar/Navbar";
 import Button from "../Button/Button";
+import WizardHeader from "../WizardHeader/WizardHeader";
+import { WIZARD_STEPS } from "./wizardSteps";
 import "./QuestionLayout.css";
 
 export default function QuestionLayout({
+  stepIndex,
   stepLabel,
-  progress,
   title,
   subtitle,
   children,
@@ -13,33 +14,70 @@ export default function QuestionLayout({
   nextDisabled = false,
   nextLabel = "التالي",
   backLabel = "السابق",
+  singleAction = false,
 }) {
+  const progress = stepIndex / WIZARD_STEPS.length;
+  const StepIcon = WIZARD_STEPS[stepIndex - 1]?.Icon;
+
   return (
     <div className="page">
-      <Navbar />
-      <main className="question">
-        <div className="question__progress">
-          <p className="question__step">{stepLabel}</p>
-          <div className="question__track">
-            <div className="question__fill" style={{ width: `${progress * 100}%` }} />
+      <WizardHeader progress={progress} onBack={onBack} onNext={singleAction ? undefined : onNext} />
+      <main className="question-wizard">
+        <section className="question-wizard__card">
+          <div className="question__progress">
+            {StepIcon && (
+              <span className="question__icon">
+                <StepIcon />
+              </span>
+            )}
+            <p className="question__step">{stepLabel}</p>
           </div>
-        </div>
 
-        <h1 className="question__title">{title}</h1>
-        {subtitle && <p className="question__subtitle">{subtitle}</p>}
+          <h1 className="question__title">{title}</h1>
+          {subtitle && <p className="question__subtitle">{subtitle}</p>}
 
-        <div className="question__content">{children}</div>
+          <div className="question__content">{children}</div>
 
-        <div className="question__nav">
-          {/* Next renders first so RTL flex (justify-content: space-between)
-              places it on the visual right, Back on the visual left — matching the design. */}
-          <Button onClick={onNext} disabled={nextDisabled}>
-            {nextLabel}
-          </Button>
-          <Button variant="secondary" onClick={onBack}>
-            {backLabel}
-          </Button>
-        </div>
+          {singleAction ? (
+            <Button fullWidth onClick={onNext} disabled={nextDisabled}>
+              {nextLabel}
+            </Button>
+          ) : (
+            <div className="question__nav">
+              {/* Next renders first so RTL flex (justify-content: space-between)
+                  places it on the visual right, Back on the visual left — matching the design. */}
+              <Button onClick={onNext} disabled={nextDisabled}>
+                {nextLabel}
+              </Button>
+              <Button variant="secondary" onClick={onBack}>
+                {backLabel}
+              </Button>
+            </div>
+          )}
+        </section>
+
+        <aside className="wizard-sidebar">
+          <p className="wizard-sidebar__title">أسئلة بيتك</p>
+          <p className="wizard-sidebar__subtitle">6 أسئلة قصيرة — دقيقتان</p>
+
+          <div className="wizard-sidebar__list">
+            {WIZARD_STEPS.map(({ path, label, Icon }, idx) => {
+              const num = idx + 1;
+              const status = num < stepIndex ? "done" : num === stepIndex ? "active" : "pending";
+              return (
+                <div className={`wizard-sidebar__item wizard-sidebar__item--${status}`} key={path}>
+                  {/* DOM order reversed (label, icon, badge) so RTL flex places
+                      the label at the visual right and the badge at the left. */}
+                  <span className="wizard-sidebar__label">{label}</span>
+                  <span className="wizard-sidebar__icon">
+                    <Icon />
+                  </span>
+                  <span className="wizard-sidebar__badge">{status === "done" ? "✓" : num}</span>
+                </div>
+              );
+            })}
+          </div>
+        </aside>
       </main>
     </div>
   );
