@@ -10,7 +10,7 @@ import Question3 from "./Pages/Question3/Question3";
 import Question4 from "./Pages/Question4/Question4";
 import Question5 from "./Pages/Question5/Question5";
 import Question6 from "./Pages/Question6/Question6";
-import Question7 from "./Pages/Question7/Question7";
+import RoomCatalog from "./Pages/RoomCatalog/RoomCatalog";
 import Result3D from "./Pages/Result3D/Result3D";
 
 export default function App() {
@@ -27,7 +27,7 @@ export default function App() {
       <Route path="/questions/4" element={<Question4 />} />
       <Route path="/questions/5" element={<Question5 />} />
       <Route path="/questions/6" element={<Question6 />} />
-      <Route path="/questions/7" element={<Question7 />} />
+      <Route path="/room-catalog" element={<RoomCatalog />} />
       <Route path="/result-3d" element={<Result3D />} />
     </Routes>
   );
