@@ -1,12 +1,13 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import QuestionLayout from "../../Components/QuestionLayout/QuestionLayout";
+import { useFormStore } from "../../Store/useFormStore";
 
 const OPTIONS = ["مفتوح على الصالة", "مغلق", "مغلق + مطبخ تحضيري"];
 
 export default function Question4() {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState("مغلق + مطبخ تحضيري");
+  const selected = useFormStore((state) => state.kitchenType);
+  const setSelected = useFormStore((state) => state.setKitchenType);
 
   return (
     <QuestionLayout

@@ -1,10 +1,11 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import QuestionLayout from "../../Components/QuestionLayout/QuestionLayout";
+import { useFormStore } from "../../Store/useFormStore";
 
 export default function Question2() {
   const navigate = useNavigate();
-  const [needsAccessible, setNeedsAccessible] = useState(true);
+  const hasElderly = useFormStore((state) => state.hasElderly);
+  const setHasElderly = useFormStore((state) => state.setHasElderly);
 
   return (
     <QuestionLayout
@@ -18,15 +19,15 @@ export default function Question2() {
       <div className="chip-row">
         <button
           type="button"
-          className={`chip ${needsAccessible ? "chip--selected" : ""}`}
-          onClick={() => setNeedsAccessible(true)}
+          className={`chip ${hasElderly ? "chip--selected" : ""}`}
+          onClick={() => setHasElderly(true)}
         >
           نعم
         </button>
         <button
           type="button"
-          className={`chip ${!needsAccessible ? "chip--selected" : ""}`}
-          onClick={() => setNeedsAccessible(false)}
+          className={`chip ${!hasElderly ? "chip--selected" : ""}`}
+          onClick={() => setHasElderly(false)}
         >
           لا
         </button>

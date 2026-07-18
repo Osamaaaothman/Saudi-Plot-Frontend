@@ -1,17 +1,20 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import QuestionLayout from "../../Components/QuestionLayout/QuestionLayout";
+import { useFormStore } from "../../Store/useFormStore";
 
 const ROW_1 = ["غسيل وكيّ", "غرفة عاملة منزلية بحمّام", "غرفة سائق بحمّام"];
 const ROW_2 = ["لا شيء", "مدخل خدمة مستقل", "مستودع"];
 
 export default function Question5() {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState(["غرفة عاملة منزلية بحمّام", "غرفة سائق بحمّام"]);
+  const selected = useFormStore((state) => state.services);
+  const setServices = useFormStore((state) => state.setServices);
 
   function toggle(option) {
-    setSelected((prev) =>
-      prev.includes(option) ? prev.filter((item) => item !== option) : [...prev, option]
+    setServices(
+      selected.includes(option)
+        ? selected.filter((item) => item !== option)
+        : [...selected, option]
     );
   }
 

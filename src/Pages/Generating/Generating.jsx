@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
+import { useFormStore } from "../../Store/useFormStore";
 import "./Generating.css";
 
 const STEPS = [
@@ -34,6 +35,11 @@ export default function Generating() {
 
   useEffect(() => {
     if (phase !== "success") return undefined;
+    // Assemble the full form payload (objects/format.json shape) that will be
+    // POSTed to the backend later, and log it as the result screen appears.
+    const payload = useFormStore.getState().buildPayload();
+    console.log("Saudi Plot — form payload for backend:", payload);
+    console.log(JSON.stringify(payload, null, 2));
     const timeout = setTimeout(() => navigate("/result"), SUCCESS_DISPLAY_TIME);
     return () => clearTimeout(timeout);
   }, [phase, navigate]);

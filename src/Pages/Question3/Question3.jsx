@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import QuestionLayout from "../../Components/QuestionLayout/QuestionLayout";
+import { useFormStore } from "../../Store/useFormStore";
 
 const OPTIONS = [
   {
@@ -22,7 +22,8 @@ const OPTIONS = [
 
 export default function Question3() {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState("independent");
+  const selected = useFormStore((state) => state.guestReceptionId);
+  const setSelected = useFormStore((state) => state.setGuestReceptionId);
 
   return (
     <QuestionLayout
