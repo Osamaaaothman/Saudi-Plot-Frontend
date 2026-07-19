@@ -31,7 +31,7 @@
   background-position: center center;
   transform: scale(1.01);
 }
-.landing-hero-image { transition: transform 0.1s linear; }
+.landing-hero-image { will-change: transform; }
 .landing-hero-shade {
   position: absolute;
   inset: 0;
