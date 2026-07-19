@@ -130,3 +130,32 @@
 .manual-form__input::placeholder {
   color: var(--muted-light);
 }
+
+.manual-form__divider {
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+  margin: 6px 0;
+}
+
+.manual-form__hint {
+  width: 100%;
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: right;
+  line-height: 1.7;
+}
+
+.manual-form__input--error {
+  border-color: #e05252;
+  box-shadow: 0 0 0 1px #e05252;
+}
+
+.manual-form__error {
+  width: 100%;
+  margin: 0;
+  font-size: 13px;
+  color: #c0392b;
+  text-align: right;
+}

@@ -21,17 +21,29 @@ export default function ExtractionFailed() {
   const extractionFailed = Boolean(location.state?.extractionFailed);
   const errorMessage = location.state?.errorMessage || "لم نستطع قراءة بيانات الصك";
   const setLandDimensions = useFormStore((state) => state.setLandDimensions);
+  const setLandCoordinates = useFormStore((state) => state.setLandCoordinates);
   const [values, setValues] = useState({ width: "", height: "", street: "" });
+  const [coords, setCoords] = useState({ lat: "", lng: "" });
+  const [coordsTouched, setCoordsTouched] = useState(false);
 
   const isComplete = FIELDS.every((field) => values[field.key].trim() !== "");
+  const coordsComplete =
+    coords.lat.trim() !== "" &&
+    coords.lng.trim() !== "" &&
+    !isNaN(Number(coords.lat)) &&
+    !isNaN(Number(coords.lng));
 
   function handleChange(key, value) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
 
   function handleContinue() {
-    if (!isComplete) return;
+    if (!isComplete || !coordsComplete) {
+      setCoordsTouched(true);
+      return;
+    }
     setLandDimensions({ width: values.width, height: values.height });
+    setLandCoordinates({ lat: Number(coords.lat), lng: Number(coords.lng) });
     navigate("/questions/1", { state: { landData: values } });
   }
 
@@ -59,7 +71,7 @@ export default function ExtractionFailed() {
 
         <div className="manual-form">
           <p className="manual-form__title">أدخل بيانات أرضك يدويًا</p>
-          <p className="manual-form__subtitle">ثلاث معلومات فقط — تجدها كلها مكتوبة في صكّك</p>
+          <p className="manual-form__subtitle">املأ المعلومات الأساسية من صكّك وإحداثيات الأرض إن أمكن.</p>
 
           {FIELDS.map((field) => (
             <label className="manual-form__field" key={field.key}>
@@ -74,7 +86,46 @@ export default function ExtractionFailed() {
             </label>
           ))}
 
-          <Button fullWidth disabled={!isComplete} onClick={handleContinue}>
+          <div className="manual-form__divider" />
+
+          <p className="manual-form__hint">
+            إحداثيات الأرض — أدخلها إن أمكن لإظهار موقع أرضك على الخريطة في النتيجة النهائية.
+          </p>
+
+          <label className="manual-form__field">
+            <span className="manual-form__label">خط العرض (Latitude)</span>
+            <input
+              type="number"
+              step="any"
+              inputMode="decimal"
+              className={`manual-form__input${
+                coordsTouched && coords.lat.trim() === "" ? " manual-form__input--error" : ""
+              }`}
+              placeholder="مثال: 24.7136"
+              value={coords.lat}
+              onChange={(e) => setCoords((c) => ({ ...c, lat: e.target.value }))}
+            />
+          </label>
+          <label className="manual-form__field">
+            <span className="manual-form__label">خط الطول (Longitude)</span>
+            <input
+              type="number"
+              step="any"
+              inputMode="decimal"
+              className={`manual-form__input${
+                coordsTouched && coords.lng.trim() === "" ? " manual-form__input--error" : ""
+              }`}
+              placeholder="مثال: 46.6753"
+              value={coords.lng}
+              onChange={(e) => setCoords((c) => ({ ...c, lng: e.target.value }))}
+            />
+          </label>
+
+          {coordsTouched && !coordsComplete && (
+            <p className="manual-form__error">الرجاء إدخال خط العرض وخط الطول (أرقام) قبل المتابعة.</p>
+          )}
+
+          <Button fullWidth disabled={!isComplete || !coordsComplete} onClick={handleContinue}>
             متابعة إلى أسئلة الأسرة
           </Button>
         </div>
