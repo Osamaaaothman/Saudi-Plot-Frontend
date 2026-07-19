@@ -6,9 +6,15 @@ const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 function buildPrompt() {
   return `You are a specialized AI that analyzes Saudi real estate deed documents (صك عقاري).
 
-Analyze the uploaded document image or PDF and extract ALL visible information.
+FIRST STEP — VALIDATE THE DOCUMENT:
+Determine whether the uploaded document is a Saudi real estate deed (صك عقاري) or a similar official property document. Look for indicators like: document number, owner names, property boundaries (الحدود), parcel number (رقم القطعة), area (المساحة), Ministry of Justice branding, QR codes for verification.
 
-CRITICAL RULES:
+If the document is CLEARLY NOT a Saudi deed or similar property document (e.g. it's a random photo, invoice, ID card, receipt, etc.), return ONLY this JSON:
+{"is_valid_deed": false, "message": "هذا الملف لا يبدو أنه صك عقاري سعودي. يرجى رفع صك الأرض أو مستند عقاري واضح."}
+
+If the document IS or appears to be a Saudi deed or similar property document, include "is_valid_deed": true in the JSON and extract ALL visible information following the rules and schema below.
+
+EXTRACTION RULES:
 1. Read ALL text, including text inside tables.
 2. Identify and list every owner with full name, ID number (رقم الهوية), and ownership percentage (نسبة الملكية).
 3. Extract all property details: property ID, type, city (المدينة), district (الحي), plan type/ number, block (المربع), parcel number (رقم القطعة), and area in m².
@@ -27,8 +33,9 @@ OUTPUT REQUIREMENTS:
 - Numbers must be actual numbers (not strings), except ID numbers which should be strings.
 - Owner names can be in Arabic — keep them as-is, do not translate.
 
-SCHEMA:
+SCHEMA (only when is_valid_deed is true):
 {
+  "is_valid_deed": true,
   "document": {
     "document_number": null,
     "document_type": null,
@@ -223,7 +230,11 @@ export async function analyzeDeed(file, onStatus) {
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     onStatus("sending");
     try {
-      return await callGeminiOnce(apiKey, base64, mimeType, onStatus);
+      const data = await callGeminiOnce(apiKey, base64, mimeType, onStatus);
+      if (data.is_valid_deed === false) {
+        throw new Error(data.message || "هذا الملف لا يبدو أنه صك عقاري سعودي. يرجى رفع صك الأرض.");
+      }
+      return data;
     } catch (err) {
       const isLastAttempt = attempt === MAX_RETRIES;
       if (!err.transient || isLastAttempt) throw err;
