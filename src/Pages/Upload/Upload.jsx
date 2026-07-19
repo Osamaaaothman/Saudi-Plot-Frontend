@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
 import { useFormStore } from "../../Store/useFormStore";
@@ -36,11 +36,21 @@ function getStepState(stepId, currentStatus) {
 
 export default function Upload() {
   const navigate = useNavigate();
+  const location = useLocation();
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [analyzeStatus, setAnalyzeStatus] = useState("idle");
   const [fileError, setFileError] = useState(null);
   const setExtractedDeedRaw = useFormStore((state) => state.setExtractedDeedRaw);
+
+  useEffect(() => {
+    const file = location.state?.file;
+    if (file) {
+      window.history.replaceState({}, document.title);
+      handleFile(file);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleFile(file) {
     if (!file || analyzeStatus !== "idle") return;

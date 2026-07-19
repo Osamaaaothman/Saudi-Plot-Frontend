@@ -40,7 +40,7 @@ export default function Generating() {
     const payload = useFormStore.getState().buildPayload();
     console.log("Saudi Plot — form payload for backend:", payload);
     console.log(JSON.stringify(payload, null, 2));
-    const timeout = setTimeout(() => navigate("/result"), SUCCESS_DISPLAY_TIME);
+    const timeout = setTimeout(() => navigate("/result-3d"), SUCCESS_DISPLAY_TIME);
     return () => clearTimeout(timeout);
   }, [phase, navigate]);
 

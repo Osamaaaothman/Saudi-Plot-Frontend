@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Landing.css";
 
 const arabicNumber = new Intl.NumberFormat("ar-EG");
@@ -14,8 +14,6 @@ function prefersStaticCount() {
 
 function Counter({ target, className }) {
   const ref = useRef(null);
-  // Start at the final value when we won't animate, so the effect never has to
-  // call setState synchronously just to show the number.
   const [value, setValue] = useState(() => (prefersStaticCount() ? target : 0));
 
   useEffect(() => {
@@ -37,26 +35,26 @@ function Counter({ target, className }) {
       };
       frame = requestAnimationFrame(tick);
     };
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0].isIntersecting) return;
+
+    // Don't start counting until the parent .landing-reveal gains .is-visible
+    const parent = el.closest(".landing-reveal");
+    if (!parent) return undefined;
+
+    if (parent.classList.contains("is-visible")) {
+      runCount();
+      return () => { if (frame) cancelAnimationFrame(frame); };
+    }
+
+    const observer = new MutationObserver(() => {
+      if (parent.classList.contains("is-visible")) {
         observer.disconnect();
         runCount();
-      },
-      { threshold: 0.4 }
-    );
-    observer.observe(el);
-    // Failsafe: never leave the number stuck at 0 if IO/rAF misbehaves.
-    const failsafe = setTimeout(() => {
-      observer.disconnect();
-      if (!done) {
-        done = true;
-        setValue(target);
       }
-    }, 2500);
+    });
+    observer.observe(parent, { attributes: true, attributeFilter: ["class"] });
+
     return () => {
       observer.disconnect();
-      clearTimeout(failsafe);
       if (frame) cancelAnimationFrame(frame);
     };
   }, [target]);
@@ -93,13 +91,20 @@ const features = [
 ];
 
 export default function Landing() {
+  const navigate = useNavigate();
   const uploadRef = useRef(null);
   const pageRef = useRef(null);
   const heroImageRef = useRef(null);
   const [fileName, setFileName] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const chooseFile = () => uploadRef.current?.click();
+
+  function handleReview() {
+    if (!selectedFile) return;
+    navigate("/upload", { state: { file: selectedFile } });
+  }
 
   // Scroll-reveal + hero parallax. Everything is opt-in via the "landing-js"
   // class added here, so if JS never runs (or reduced motion is preferred)
@@ -216,7 +221,11 @@ export default function Landing() {
 
         <a className="landing-scroll-cue" href="#how" aria-label="انتقل إلى القسم التالي">
           <span>اكتشف التجربة</span>
-          <b aria-hidden="true">⌄</b>
+          <b aria-hidden="true" style={{ display: "inline-flex" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </b>
         </a>
       </section>
 
@@ -233,7 +242,27 @@ export default function Landing() {
               <div className="landing-step-top">
                 <span className="landing-step-number">{step.number}</span>
                 <span className="landing-step-icon" aria-hidden="true">
-                  {index === 0 ? "⌁" : index === 1 ? "⌂" : "▱"}
+                  {index === 0 ? (
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="12" y1="12" x2="12" y2="18"/>
+                      <polyline points="9 15 12 12 15 15"/>
+                    </svg>
+                  ) : index === 1 ? (
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                      <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                  ) : (
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2"/>
+                      <line x1="3" y1="9" x2="21" y2="9"/>
+                      <line x1="3" y1="15" x2="21" y2="15"/>
+                      <line x1="9" y1="3" x2="9" y2="21"/>
+                      <line x1="15" y1="3" x2="15" y2="21"/>
+                    </svg>
+                  )}
                 </span>
               </div>
               <h3>{step.title}</h3>
@@ -284,10 +313,16 @@ export default function Landing() {
             className="landing-visually-hidden"
             type="file"
             accept=".pdf,.jpg,.jpeg,.png"
-            onChange={(event) => setFileName(event.target.files?.[0]?.name || "")}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) {
+                setFileName(file.name);
+                setSelectedFile(file);
+              }
+            }}
           />
 
-          <button className="landing-upload-action" type="button" onClick={chooseFile}>
+          <button className="landing-upload-action" type="button" onClick={fileName ? handleReview : chooseFile}>
             {fileName ? "متابعة ومراجعة البيانات" : "اختر ملفًا من جهازك"}
           </button>
           <button className="landing-manual-action" type="button">أو أدخل أبعاد الأرض يدويًا</button>
@@ -310,9 +345,30 @@ export default function Landing() {
         <div className="landing-feature-grid">
           {features.map(([title, text], index) => (
             <article className="landing-feature-card landing-reveal" key={title}>
-              <span className="landing-feature-index">٠{index + 1}</span>
-              <div className="landing-feature-glyph" aria-hidden="true">
-                {index === 0 ? "⌗" : index === 1 ? "◎" : "✦"}
+              <div className="landing-feature-top">
+                <span className="landing-feature-index">٠{index + 1}</span>
+                <div className="landing-feature-glyph" aria-hidden="true">
+                {index === 0 ? (
+                  <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <circle cx="10" cy="14" r="3"/>
+                    <line x1="12.5" y1="16.5" x2="15" y2="19"/>
+                  </svg>
+                ) : index === 1 ? (
+                  <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                ) : (
+                  <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88"/>
+                  </svg>
+                )}
+              </div>
               </div>
               <h3>{title}</h3>
               <p>{text}</p>

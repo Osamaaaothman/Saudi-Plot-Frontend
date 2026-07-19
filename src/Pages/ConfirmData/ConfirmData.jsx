@@ -48,6 +48,7 @@ export default function ConfirmData() {
   const navigate = useNavigate();
   const extractedDeedRaw = useFormStore((state) => state.extractedDeedRaw);
   const setLandDimensions = useFormStore((state) => state.setLandDimensions);
+  const setLandCoordinates = useFormStore((state) => state.setLandCoordinates);
   const deedBoundaryFields = buildBoundaryFields(extractedDeedRaw);
 
   const [fields, setFields] = useState(deedBoundaryFields ?? FALLBACK_BOUNDARIES);
@@ -61,18 +62,37 @@ export default function ConfirmData() {
   }));
   const [dimTouched, setDimTouched] = useState(false);
 
+  // Coordinates are also mandatory — pulled from QR codes or entered manually.
+  const initCoords = extractedDeedRaw?._coordinates;
+  const [coords, setCoords] = useState({
+    lat: initCoords ? String(initCoords.lat) : "",
+    lng: initCoords ? String(initCoords.lng) : "",
+  });
+  const [coordsTouched, setCoordsTouched] = useState(false);
+
   const dimensionsComplete =
     dimensions.width.trim() !== "" &&
     dimensions.height.trim() !== "" &&
     Number(dimensions.width) > 0 &&
     Number(dimensions.height) > 0;
 
+  const coordsComplete = initCoords || (
+    coords.lat.trim() !== "" &&
+    coords.lng.trim() !== "" &&
+    !isNaN(Number(coords.lat)) &&
+    !isNaN(Number(coords.lng))
+  );
+
   function handleContinue() {
-    if (!dimensionsComplete) {
+    if (!dimensionsComplete || !coordsComplete) {
       setDimTouched(true);
+      setCoordsTouched(true);
       return;
     }
     setLandDimensions(dimensions);
+    if (!initCoords) {
+      setLandCoordinates({ lat: Number(coords.lat), lng: Number(coords.lng) });
+    }
     navigate("/questions/1");
   }
 
@@ -80,7 +100,6 @@ export default function ConfirmData() {
   const property = extractedDeedRaw?.property;
   const owners = extractedDeedRaw?.owners?.filter((o) => o?.name || o?.id_number) ?? [];
   const qrCodes = extractedDeedRaw?.qr_codes?.filter((q) => q?.decoded_text) ?? [];
-  const coordinates = extractedDeedRaw?._coordinates;
   const verificationUrl = extractedDeedRaw?.verification?.verification_url;
   const extraInfo = extractedDeedRaw?.extra_information ?? {};
   const extraEntries = Object.entries(extraInfo).filter(([, v]) => v != null && v !== "");
@@ -91,7 +110,7 @@ export default function ConfirmData() {
     setFields((prev) => prev.map((field) => (field.id === id ? { ...field, value } : field)));
   }
 
-  const mapsUrl = coordinates ? `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}` : null;
+  const mapsUrl = coords.lat && coords.lng ? `https://www.google.com/maps?q=${coords.lat},${coords.lng}` : null;
 
   return (
     <div className="page">
@@ -131,29 +150,70 @@ export default function ConfirmData() {
           ))}
         </div>
 
-        {/* ── Coordinates from QR codes ── */}
-        {coordinates && (
-          <section className="confirm-section confirm-section--map">
-            <h2 className="confirm-section__title">إحداثيات الأرض (من رمز QR)</h2>
-            <div className="confirm-section__body">
-              <div className="coords-row">
-                <div className="coords-row__pair">
-                  <span className="coords-row__value">{coordinates.lat.toFixed(6)}</span>
-                  <span className="coords-row__label">خط العرض</span>
+        {/* ── Coordinates from QR codes (required) ── */}
+        <section className="confirm-section confirm-section--map">
+          <h2 className="confirm-section__title">إحداثيات الأرض (مطلوب)</h2>
+          <div className="confirm-section__body">
+            {initCoords ? (
+              <>
+                <div className="coords-row">
+                  <div className="coords-row__pair">
+                    <span className="coords-row__value">{initCoords.lat.toFixed(6)}</span>
+                    <span className="coords-row__label">خط العرض</span>
+                  </div>
+                  <div className="coords-row__pair">
+                    <span className="coords-row__value">{initCoords.lng.toFixed(6)}</span>
+                    <span className="coords-row__label">خط الطول</span>
+                  </div>
                 </div>
-                <div className="coords-row__pair">
-                  <span className="coords-row__value">{coordinates.lng.toFixed(6)}</span>
-                  <span className="coords-row__label">خط الطول</span>
+                {mapsUrl && (
+                  <a className="coords-row__link" href={mapsUrl} target="_blank" rel="noreferrer">
+                    فتح الموقع في خرائط Google ←
+                  </a>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="confirm-dims__hint">
+                  لم نتمكن من قراءة إحداثيات الأرض من رمز QR — أدخل إحداثيات موقع أرضك يدويًا إن أمكن.
+                </p>
+                <div className="confirm-dims__grid">
+                  <label className="confirm-dims__field">
+                    <span className="confirm-dims__label">خط العرض (Latitude)</span>
+                    <input
+                      type="number"
+                      step="any"
+                      inputMode="decimal"
+                      className={`confirm-dims__input${
+                        coordsTouched && coords.lat.trim() === "" ? " confirm-dims__input--error" : ""
+                      }`}
+                      placeholder="مثال: 24.7136"
+                      value={coords.lat}
+                      onChange={(e) => setCoords((c) => ({ ...c, lat: e.target.value }))}
+                    />
+                  </label>
+                  <label className="confirm-dims__field">
+                    <span className="confirm-dims__label">خط الطول (Longitude)</span>
+                    <input
+                      type="number"
+                      step="any"
+                      inputMode="decimal"
+                      className={`confirm-dims__input${
+                        coordsTouched && coords.lng.trim() === "" ? " confirm-dims__input--error" : ""
+                      }`}
+                      placeholder="مثال: 46.6753"
+                      value={coords.lng}
+                      onChange={(e) => setCoords((c) => ({ ...c, lng: e.target.value }))}
+                    />
+                  </label>
                 </div>
-              </div>
-              {mapsUrl && (
-                <a className="coords-row__link" href={mapsUrl} target="_blank" rel="noreferrer">
-                  فتح الموقع في خرائط Google ←
-                </a>
-              )}
-            </div>
-          </section>
-        )}
+                {coordsTouched && !coordsComplete && (
+                  <p className="confirm-dims__error">الرجاء إدخال خط العرض وخط الطول (أرقام) قبل المتابعة.</p>
+                )}
+              </>
+            )}
+          </div>
+        </section>
 
         {/* ── Document info ── */}
         {doc && (
@@ -283,7 +343,7 @@ export default function ConfirmData() {
           {docNumber ? `المصدر: صك إلكتروني رقم ${docNumber} — وزارة العدل` : "المصدر: وزارة العدل"}
         </p>
 
-        <Button fullWidth disabled={!dimensionsComplete} onClick={handleContinue}>
+        <Button fullWidth disabled={!dimensionsComplete || !coordsComplete} onClick={handleContinue}>
           البيانات صحيحة — متابعة إلى أسئلة الأسرة
         </Button>
       </main>

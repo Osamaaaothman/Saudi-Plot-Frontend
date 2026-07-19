@@ -44,6 +44,10 @@ export const useFormStore = create((set, get) => ({
   landDimensions: { width: "", height: "" },
   setLandDimensions: (landDimensions) => set({ landDimensions }),
 
+  // GPS coordinates extracted from QR codes. Required before proceeding.
+  landCoordinates: { lat: "", lng: "" },
+  setLandCoordinates: (landCoordinates) => set({ landCoordinates }),
+
   // Collected answers (UI-friendly form).
   familyMembers: { adults: 4, children: 3 },
   hasElderly: true,

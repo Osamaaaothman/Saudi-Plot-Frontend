@@ -3,7 +3,7 @@ import { Routes, Route, useLocation, useOutlet } from "react-router-dom";
 import { AnimatePresence, MotionConfig } from "framer-motion";
 import Landing from "./Pages/Landing/Landing";
 import Upload from "./Pages/Upload/Upload";
-import Result from "./Pages/Result/Result";
+
 import ExtractionFailed from "./Pages/ExtractionFailed/ExtractionFailed";
 import ConfirmData from "./Pages/ConfirmData/ConfirmData";
 import Generating from "./Pages/Generating/Generating";
@@ -63,7 +63,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/upload" element={<Upload />} />
-      <Route path="/result" element={<Result />} />
+      {/* <Route path="/result" element={<Result />} /> */}
       <Route path="/manual-entry" element={<ExtractionFailed />} />
       <Route path="/confirm-data" element={<ConfirmData />} />
       <Route path="/generating" element={<Generating />} />
