@@ -13,6 +13,7 @@ const Result3D = () => {
   const [viewMode, setViewMode] = useState('3D');
   const landCoordinates = useFormStore((state) => state.landCoordinates);
   const landDimensions = useFormStore((state) => state.landDimensions);
+  const landRotation = useFormStore((state) => state.landRotation);
 
   return (
     <div className="house-plan-wrapper" dir="rtl">
@@ -67,6 +68,7 @@ const Result3D = () => {
                     lng={landCoordinates?.lng ? Number(landCoordinates.lng) : null}
                     widthM={Number(landDimensions?.width)}
                     heightM={Number(landDimensions?.height)}
+                    rotationDeg={landRotation || 0}
                   />
                 </Suspense>
               </div>

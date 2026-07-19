@@ -25,11 +25,13 @@ export default function ExtractionFailed() {
   const errorMessage = location.state?.errorMessage || t("extraction_failed.title");
   const setLandDimensions = useFormStore((state) => state.setLandDimensions);
   const setLandCoordinates = useFormStore((state) => state.setLandCoordinates);
+  const setLandRotation = useFormStore((state) => state.setLandRotation);
   const [values, setValues] = useState({ width: "", height: "", street: "" });
   const [coords, setCoords] = useState({ lat: "", lng: "" });
   const [coordsTouched, setCoordsTouched] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
   const [pickedFromMap, setPickedFromMap] = useState(false);
+  const [rotation, setRotation] = useState(0);
 
   const isComplete = FIELDS.every((field) => values[field.key].trim() !== "");
   const coordsComplete =
@@ -49,6 +51,7 @@ export default function ExtractionFailed() {
     }
     setLandDimensions({ width: values.width, height: values.height });
     setLandCoordinates({ lat: Number(coords.lat), lng: Number(coords.lng) });
+    setLandRotation(rotation);
     navigate("/questions/1", { state: { landData: values } });
   }
 
@@ -163,8 +166,15 @@ export default function ExtractionFailed() {
             initialLng={coords.lng ? Number(coords.lng) : null}
             landWidth={values.width}
             landHeight={values.height}
-            onConfirm={({ lat, lng }) => {
+            initialRotationDeg={rotation}
+            onConfirm={({ lat, lng, widthM, heightM, rotationDeg }) => {
               setCoords({ lat: String(lat), lng: String(lng) });
+              setValues((v) => ({
+                ...v,
+                width: String(Math.round(widthM * 10) / 10),
+                height: String(Math.round(heightM * 10) / 10),
+              }));
+              setRotation(rotationDeg);
               setPickedFromMap(true);
               setMapOpen(false);
             }}

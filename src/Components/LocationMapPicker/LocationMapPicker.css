@@ -195,6 +195,13 @@
   color: #b91c1c;
 }
 
+.map-picker__hint {
+  margin: 8px 20px 0;
+  font-size: 12.5px;
+  color: var(--muted);
+  text-align: right;
+}
+
 .map-picker__map-wrap {
   position: relative;
   flex: 1 1 auto;
@@ -208,6 +215,65 @@
 .map-picker__map {
   position: absolute;
   inset: 0;
+}
+
+/* Corner resize handles — small squares at each corner of the plot
+   rectangle. Dragging one resizes from the opposite (fixed) corner while
+   keeping the area constant (see resizeFromCorner in plotGeometry.js). */
+.map-picker__corner-handle {
+  width: 14px;
+  height: 14px;
+  background: #fff9ee;
+  border: 2.5px solid #9d5b3e;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(37, 35, 29, 0.3);
+}
+
+/* Rotation handle — a small circle offset from the plot's top edge,
+   connected by a dashed guide line; dragging it spins the rectangle. */
+.map-picker__rotate-handle {
+  width: 16px;
+  height: 16px;
+  background: #505632;
+  border: 2.5px solid #fff9ee;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(37, 35, 29, 0.35);
+}
+
+.map-picker__north-arrow {
+  position: absolute;
+  z-index: 5;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  background: var(--card);
+  border-radius: 10px;
+  padding: 6px 8px;
+  color: var(--dark);
+  box-shadow: 0 6px 18px rgba(37, 35, 29, 0.2);
+}
+.map-picker__north-arrow span {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.map-picker__area-badge {
+  position: absolute;
+  z-index: 5;
+  top: 10px;
+  right: 10px;
+  background: var(--card);
+  color: var(--olive-dark);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 6px 18px rgba(37, 35, 29, 0.2);
 }
 
 .map-picker__style-toggle {

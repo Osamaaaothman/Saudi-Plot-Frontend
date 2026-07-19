@@ -2,7 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { buildPlotRectangle } from "../../utils/plotGeometry";
+import {
+  buildPlotRectangle,
+  getRectangleCorners,
+  resizeFromCorner,
+  bearingFromCenter,
+  getRotationHandlePosition,
+  pointAtBearing,
+} from "../../utils/plotGeometry";
 import "./LocationMapPicker.css";
 
 // Free, no-signup basemaps only:
@@ -11,9 +18,9 @@ import "./LocationMapPicker.css";
 const STREET_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 const SATELLITE_STYLE = {
   version: 8,
-  // Reuse OpenFreeMap's free public glyph (font) server so the plot-size
-  // label still renders in satellite mode, which has no vector tiles of
-  // its own to source fonts from.
+  // Reuse OpenFreeMap's free public glyph (font) server so labels still
+  // render in satellite mode, which has no vector tiles of its own to
+  // source fonts from.
   glyphs: "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
   sources: {
     esri: {
@@ -30,85 +37,121 @@ const SATELLITE_STYLE = {
 
 const DEFAULT_CENTER = { lat: 24.7136, lng: 46.6753 }; // Riyadh
 const DEFAULT_ZOOM = 11;
-const PICKED_ZOOM = 16;
+const PICKED_ZOOM = 17;
 
 const RECT_SOURCE_ID = "land-plot-rect";
 const RECT_FILL_LAYER = "land-plot-rect-fill";
 const RECT_LINE_LAYER = "land-plot-rect-line";
-const RECT_LABEL_SOURCE_ID = "land-plot-label";
-const RECT_LABEL_LAYER = "land-plot-label-text";
+const LABEL_SOURCE_ID = "land-plot-label";
+const LABEL_LAYER = "land-plot-label-text";
+const HANDLE_LINE_SOURCE_ID = "rotate-handle-line";
+const HANDLE_LINE_LAYER = "rotate-handle-line-layer";
+const BOUNDARY_SOURCE_ID = "deed-boundary-labels";
+const BOUNDARY_LAYER = "deed-boundary-label-text";
 
-const EMPTY_FEATURE_COLLECTION = { type: "FeatureCollection", features: [] };
+const EMPTY_FC = { type: "FeatureCollection", features: [] };
+const CORNER_CURSORS = ["nwse-resize", "nesw-resize", "nwse-resize", "nesw-resize"];
+const BOUNDARY_KEYS = [
+  { key: "north", bearing: 0 },
+  { key: "east", bearing: 90 },
+  { key: "south", bearing: 180 },
+  { key: "west", bearing: 270 },
+];
 
-// Always treated as "open" while mounted — the parent controls visibility by
-// conditionally mounting/unmounting this component (see ConfirmData /
-// ExtractionFailed), which is also what keeps MapLibre out of the initial
-// bundle: it's lazy-imported and only fetched once the user opens the map.
+function makeHandleEl(className, cursor) {
+  const el = document.createElement("div");
+  el.className = className;
+  el.style.cursor = cursor;
+  return el;
+}
+
+// Always mounted only while the picker should be visible (parent controls
+// this), which is also what keeps MapLibre out of the initial bundle: it's
+// lazy-imported and only fetched once the user opens the map.
 export default function LocationMapPicker({
   initialLat,
   initialLng,
   landWidth,
   landHeight,
-  onConfirm,
+  initialRotationDeg = 0,
+  deedBoundaries, // optional { north, south, east, west } numbers, in metres
+  onConfirm, // ({ lat, lng, widthM, heightM, rotationDeg }) => void
   onClose,
 }) {
   const { t, i18n } = useTranslation();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
-  const markerRef = useRef(null);
+  const centerMarkerRef = useRef(null);
+  const cornerMarkersRef = useRef([]);
+  const rotateMarkerRef = useRef(null);
   const searchAbortRef = useRef(null);
 
-  const [style, setStyle] = useState("street");
-  const [picked, setPicked] = useState(() =>
-    initialLat != null && initialLng != null ? { lat: initialLat, lng: initialLng } : null
-  );
+  const [mapStyle, setMapStyle] = useState("street");
 
-  const widthM = Number(landWidth);
-  const heightM = Number(landHeight);
-  const hasPlotSize = widthM > 0 && heightM > 0;
-  const plotLabel = hasPlotSize ? t("map.dims_label", { width: landWidth, height: landHeight }) : "";
-  // Refs so the map-load/click/drag handlers (created once on mount) always
-  // read the latest size/label without needing to be recreated.
-  const plotSizeRef = useRef({ widthM, heightM, hasPlotSize, plotLabel });
-  useEffect(() => {
-    plotSizeRef.current = { widthM, heightM, hasPlotSize, plotLabel };
-  }, [widthM, heightM, hasPlotSize, plotLabel]);
+  const initialWidthM = Number(landWidth) || 0;
+  const initialHeightM = Number(landHeight) || 0;
+  const hasFixedSize = initialWidthM > 0 && initialHeightM > 0;
+
+  const [plot, setPlot] = useState(() => {
+    if (initialLat == null || initialLng == null) return null;
+    return {
+      centerLat: initialLat,
+      centerLng: initialLng,
+      widthM: initialWidthM,
+      heightM: initialHeightM,
+      rotationDeg: initialRotationDeg,
+    };
+  });
+  // Authoritative, synchronously-mutable copy for the native drag handlers
+  // (MapLibre fires 'drag' events faster than React re-renders would keep
+  // up with) — `plot` state stays in sync for the footer/UI to read.
+  const plotRef = useRef(plot);
+
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState(null);
 
-  // Init / teardown the map once, on mount (parent mounts this component
-  // only while the picker should be visible).
   useEffect(() => {
     if (!containerRef.current) return undefined;
 
-    const startCenter = picked ?? DEFAULT_CENTER;
+    const startCenter = plotRef.current
+      ? { lat: plotRef.current.centerLat, lng: plotRef.current.centerLng }
+      : DEFAULT_CENTER;
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: STREET_STYLE_URL,
       center: [startCenter.lng, startCenter.lat],
-      zoom: picked ? PICKED_ZOOM : DEFAULT_ZOOM,
+      zoom: plotRef.current ? PICKED_ZOOM : DEFAULT_ZOOM,
       attributionControl: { compact: true },
+      dragRotate: false, // keep north-up always, so the static north arrow stays accurate
+      touchPitch: false,
     });
     mapRef.current = map;
+    map.touchZoomRotate.disableRotation();
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-left");
+    map.addControl(new maplibregl.ScaleControl({ maxWidth: 110, unit: "metric" }), "bottom-left");
 
-    const marker = new maplibregl.Marker({ draggable: true, color: "#25231d" }).setLngLat([
+    const centerMarker = new maplibregl.Marker({ draggable: true, color: "#25231d" }).setLngLat([
       startCenter.lng,
       startCenter.lat,
     ]);
-    if (picked) marker.addTo(map);
-    markerRef.current = marker;
+    if (plotRef.current) centerMarker.addTo(map);
+    centerMarkerRef.current = centerMarker;
 
-    // Draw the land plot footprint as a real-scale rectangle around the
-    // marker. `setStyle` (street/satellite toggle) wipes any layers not part
-    // of the style itself, so this re-adds them on every style load, not
-    // just the first one.
-    function ensurePlotLayers() {
+    const cornerMarkers = CORNER_CURSORS.map(
+      (cursor) => new maplibregl.Marker({ element: makeHandleEl("map-picker__corner-handle", cursor) })
+    );
+    cornerMarkersRef.current = cornerMarkers;
+    const rotateMarker = new maplibregl.Marker({
+      element: makeHandleEl("map-picker__rotate-handle", "grab"),
+    });
+    rotateMarkerRef.current = rotateMarker;
+
+    function ensureLayers() {
       if (!map.getSource(RECT_SOURCE_ID)) {
-        map.addSource(RECT_SOURCE_ID, { type: "geojson", data: EMPTY_FEATURE_COLLECTION });
+        map.addSource(RECT_SOURCE_ID, { type: "geojson", data: EMPTY_FC });
         map.addLayer({
           id: RECT_FILL_LAYER,
           type: "fill",
@@ -122,74 +165,169 @@ export default function LocationMapPicker({
           paint: { "line-color": "#9d5b3e", "line-width": 2.5, "line-dasharray": [2, 1] },
         });
       }
-      if (!map.getSource(RECT_LABEL_SOURCE_ID)) {
-        map.addSource(RECT_LABEL_SOURCE_ID, { type: "geojson", data: EMPTY_FEATURE_COLLECTION });
+      if (!map.getSource(LABEL_SOURCE_ID)) {
+        map.addSource(LABEL_SOURCE_ID, { type: "geojson", data: EMPTY_FC });
         map.addLayer({
-          id: RECT_LABEL_LAYER,
+          id: LABEL_LAYER,
           type: "symbol",
-          source: RECT_LABEL_SOURCE_ID,
-          layout: {
-            "text-field": ["get", "label"],
-            "text-size": 13,
-            "text-font": ["Noto Sans Regular"],
-          },
-          paint: {
-            "text-color": "#3f2a1f",
-            "text-halo-color": "#fff9ee",
-            "text-halo-width": 1.6,
-          },
+          source: LABEL_SOURCE_ID,
+          layout: { "text-field": ["get", "label"], "text-size": 13, "text-font": ["Noto Sans Regular"] },
+          paint: { "text-color": "#3f2a1f", "text-halo-color": "#fff9ee", "text-halo-width": 1.6 },
+        });
+      }
+      if (!map.getSource(HANDLE_LINE_SOURCE_ID)) {
+        map.addSource(HANDLE_LINE_SOURCE_ID, { type: "geojson", data: EMPTY_FC });
+        map.addLayer({
+          id: HANDLE_LINE_LAYER,
+          type: "line",
+          source: HANDLE_LINE_SOURCE_ID,
+          paint: { "line-color": "#505632", "line-width": 1.5, "line-dasharray": [1, 1] },
+        });
+      }
+      if (!map.getSource(BOUNDARY_SOURCE_ID)) {
+        map.addSource(BOUNDARY_SOURCE_ID, { type: "geojson", data: EMPTY_FC });
+        map.addLayer({
+          id: BOUNDARY_LAYER,
+          type: "symbol",
+          source: BOUNDARY_SOURCE_ID,
+          layout: { "text-field": ["get", "label"], "text-size": 12, "text-font": ["Noto Sans Regular"] },
+          paint: { "text-color": "#1f4e79", "text-halo-color": "#fff9ee", "text-halo-width": 1.6 },
         });
       }
     }
 
-    function syncPlotRectangle(lat, lng) {
-      ensurePlotLayers();
-      const { widthM: w, heightM: h, hasPlotSize: has, plotLabel: label } = plotSizeRef.current;
+    function redraw() {
+      ensureLayers();
+      const p = plotRef.current;
       const rectSource = map.getSource(RECT_SOURCE_ID);
-      const labelSource = map.getSource(RECT_LABEL_SOURCE_ID);
-      if (!has) {
-        rectSource?.setData(EMPTY_FEATURE_COLLECTION);
-        labelSource?.setData(EMPTY_FEATURE_COLLECTION);
+      const labelSource = map.getSource(LABEL_SOURCE_ID);
+      const lineSource = map.getSource(HANDLE_LINE_SOURCE_ID);
+      const boundarySource = map.getSource(BOUNDARY_SOURCE_ID);
+
+      if (!p || p.widthM <= 0 || p.heightM <= 0) {
+        rectSource?.setData(EMPTY_FC);
+        labelSource?.setData(EMPTY_FC);
+        lineSource?.setData(EMPTY_FC);
+        boundarySource?.setData(EMPTY_FC);
+        cornerMarkers.forEach((m) => m.remove());
+        rotateMarker.remove();
         return;
       }
+
+      const { centerLat, centerLng, widthM, heightM, rotationDeg } = p;
+      const corners = getRectangleCorners(centerLat, centerLng, widthM, heightM, rotationDeg);
+
       rectSource?.setData({
         type: "FeatureCollection",
-        features: [{ type: "Feature", properties: {}, geometry: buildPlotRectangle(lat, lng, w, h) }],
+        features: [{ type: "Feature", properties: {}, geometry: buildPlotRectangle(centerLat, centerLng, widthM, heightM, rotationDeg) }],
       });
+
+      const label = t("map.dims_label", { width: Math.round(widthM * 10) / 10, height: Math.round(heightM * 10) / 10 });
       labelSource?.setData({
         type: "FeatureCollection",
+        features: [{ type: "Feature", properties: { label }, geometry: { type: "Point", coordinates: [centerLng, centerLat] } }],
+      });
+
+      corners.forEach((c, i) => {
+        cornerMarkers[i].setLngLat([c.lng, c.lat]);
+        if (!cornerMarkers[i].getElement().isConnected) cornerMarkers[i].addTo(map);
+      });
+
+      const rotateOffset = Math.max(widthM, heightM) * 0.18 + 6;
+      const rotatePos = getRotationHandlePosition(centerLat, centerLng, widthM, heightM, rotationDeg, rotateOffset);
+      rotateMarker.setLngLat([rotatePos.lng, rotatePos.lat]);
+      if (!rotateMarker.getElement().isConnected) rotateMarker.addTo(map);
+
+      const topMid = getRectangleCorners(centerLat, centerLng, widthM, heightM, rotationDeg);
+      const topMidPoint = {
+        lat: (topMid[0].lat + topMid[1].lat) / 2,
+        lng: (topMid[0].lng + topMid[1].lng) / 2,
+      };
+      lineSource?.setData({
+        type: "FeatureCollection",
         features: [
-          { type: "Feature", properties: { label }, geometry: { type: "Point", coordinates: [lng, lat] } },
+          {
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: [[topMidPoint.lng, topMidPoint.lat], [rotatePos.lng, rotatePos.lat]] },
+          },
         ],
       });
+
+      if (deedBoundaries) {
+        const boundaryOffset = Math.max(widthM, heightM) / 2 + 10;
+        const features = BOUNDARY_KEYS.filter(({ key }) => deedBoundaries[key] > 0).map(({ key, bearing }) => {
+          const pos = pointAtBearing(centerLat, centerLng, bearing, boundaryOffset);
+          const label = t("map.boundary_label", { dir: t(`map.dir_${key}`), value: deedBoundaries[key] });
+          return { type: "Feature", properties: { label }, geometry: { type: "Point", coordinates: [pos.lng, pos.lat] } };
+        });
+        boundarySource?.setData({ type: "FeatureCollection", features });
+      }
     }
 
-    map.on("load", () => syncPlotRectangle(startCenter.lat, startCenter.lng));
-    map.on("style.load", () => {
-      const pos = markerRef.current?.getLngLat();
-      syncPlotRectangle(pos?.lat ?? startCenter.lat, pos?.lng ?? startCenter.lng);
-    });
+    function commitPlot(next) {
+      plotRef.current = next;
+      setPlot(next);
+      redraw();
+    }
 
-    marker.on("dragend", () => {
-      const { lat, lng } = marker.getLngLat();
-      setPicked({ lat, lng });
-      syncPlotRectangle(lat, lng);
+    map.on("load", redraw);
+    map.on("style.load", redraw);
+
+    centerMarker.on("drag", () => {
+      const { lat, lng } = centerMarker.getLngLat();
+      const prev = plotRef.current;
+      commitPlot(prev ? { ...prev, centerLat: lat, centerLng: lng } : { centerLat: lat, centerLng: lng, widthM: 0, heightM: 0, rotationDeg: 0 });
     });
 
     map.on("click", (e) => {
       const { lat, lng } = e.lngLat;
-      marker.setLngLat([lng, lat]);
-      if (!marker.getElement().isConnected) marker.addTo(map);
-      setPicked({ lat, lng });
-      syncPlotRectangle(lat, lng);
+      centerMarker.setLngLat([lng, lat]);
+      if (!centerMarker.getElement().isConnected) centerMarker.addTo(map);
+      const prev = plotRef.current;
+      commitPlot(
+        prev
+          ? { ...prev, centerLat: lat, centerLng: lng }
+          : { centerLat: lat, centerLng: lng, widthM: initialWidthM, heightM: initialHeightM, rotationDeg: initialRotationDeg }
+      );
     });
 
-    mapRef.current.syncPlotRectangle = syncPlotRectangle;
+    cornerMarkers.forEach((marker, index) => {
+      marker.on("drag", () => {
+        const p = plotRef.current;
+        if (!p) return;
+        const { lat, lng } = marker.getLngLat();
+        const next = resizeFromCorner({
+          centerLat: p.centerLat,
+          centerLng: p.centerLng,
+          widthM: p.widthM,
+          heightM: p.heightM,
+          rotationDeg: p.rotationDeg,
+          cornerIndex: index,
+          cursorLat: lat,
+          cursorLng: lng,
+        });
+        commitPlot({ ...p, ...next });
+        centerMarker.setLngLat([next.centerLng, next.centerLat]);
+      });
+    });
+
+    rotateMarker.on("drag", () => {
+      const p = plotRef.current;
+      if (!p) return;
+      const { lat, lng } = rotateMarker.getLngLat();
+      const rotationDeg = bearingFromCenter(p.centerLat, p.centerLng, lat, lng);
+      commitPlot({ ...p, rotationDeg });
+    });
+
+    mapRef.current.__redraw = redraw;
 
     return () => {
       map.remove();
       mapRef.current = null;
-      markerRef.current = null;
+      centerMarkerRef.current = null;
+      cornerMarkersRef.current = [];
+      rotateMarkerRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- init once on mount only
   }, []);
@@ -198,18 +336,23 @@ export default function LocationMapPicker({
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    map.setStyle(style === "street" ? STREET_STYLE_URL : SATELLITE_STYLE);
-  }, [style]);
+    map.setStyle(mapStyle === "street" ? STREET_STYLE_URL : SATELLITE_STYLE);
+  }, [mapStyle]);
 
   function flyTo(lat, lng, zoom = PICKED_ZOOM) {
     const map = mapRef.current;
-    const marker = markerRef.current;
-    if (!map || !marker) return;
-    marker.setLngLat([lng, lat]);
-    if (!marker.getElement().isConnected) marker.addTo(map);
+    const centerMarker = centerMarkerRef.current;
+    if (!map || !centerMarker) return;
+    centerMarker.setLngLat([lng, lat]);
+    if (!centerMarker.getElement().isConnected) centerMarker.addTo(map);
     map.flyTo({ center: [lng, lat], zoom });
-    setPicked({ lat, lng });
-    map.syncPlotRectangle?.(lat, lng);
+    const prev = plotRef.current;
+    const next = prev
+      ? { ...prev, centerLat: lat, centerLng: lng }
+      : { centerLat: lat, centerLng: lng, widthM: initialWidthM, heightM: initialHeightM, rotationDeg: initialRotationDeg };
+    plotRef.current = next;
+    setPlot(next);
+    map.__redraw?.();
   }
 
   function useMyLocation() {
@@ -261,6 +404,9 @@ export default function LocationMapPicker({
   }, [query, i18n.language]);
 
   const visibleResults = query.trim().length < 3 ? [] : results;
+  const hasPlotSize = !!plot && plot.widthM > 0 && plot.heightM > 0;
+  const areaM2 = hasPlotSize ? Math.round(plot.widthM * plot.heightM) : 0;
+  const perimeterM = hasPlotSize ? Math.round(2 * (plot.widthM + plot.heightM)) : 0;
 
   return (
     <div className="map-picker-overlay" role="dialog" aria-modal="true" aria-label={t("map.title")}>
@@ -268,7 +414,7 @@ export default function LocationMapPicker({
         <header className="map-picker__header">
           <div>
             <h2 className="map-picker__title">{t("map.title")}</h2>
-            {landWidth && landHeight && (
+            {hasFixedSize && (
               <p className="map-picker__dims-badge">
                 {t("map.dims_badge", { width: landWidth, height: landHeight })}
               </p>
@@ -280,6 +426,10 @@ export default function LocationMapPicker({
             </svg>
           </button>
         </header>
+
+        {hasFixedSize && (
+          <p className="map-picker__hint">{t("map.reshape_hint")}</p>
+        )}
 
         <div className="map-picker__search-row">
           <div className="map-picker__search">
@@ -333,18 +483,29 @@ export default function LocationMapPicker({
 
         <div className="map-picker__map-wrap">
           <div ref={containerRef} className="map-picker__map" />
+          <div className="map-picker__north-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+              <path d="M12 2v20M12 2l-5 8h10z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+            </svg>
+            <span>{t("map.north")}</span>
+          </div>
+          {hasPlotSize && (
+            <div className="map-picker__area-badge">
+              {t("map.area_perimeter", { area: areaM2, perimeter: perimeterM })}
+            </div>
+          )}
           <div className="map-picker__style-toggle">
             <button
               type="button"
-              className={style === "street" ? "is-active" : ""}
-              onClick={() => setStyle("street")}
+              className={mapStyle === "street" ? "is-active" : ""}
+              onClick={() => setMapStyle("street")}
             >
               {t("map.style_street")}
             </button>
             <button
               type="button"
-              className={style === "satellite" ? "is-active" : ""}
-              onClick={() => setStyle("satellite")}
+              className={mapStyle === "satellite" ? "is-active" : ""}
+              onClick={() => setMapStyle("satellite")}
             >
               {t("map.style_satellite")}
             </button>
@@ -353,8 +514,8 @@ export default function LocationMapPicker({
 
         <footer className="map-picker__footer">
           <span className="map-picker__coords">
-            {picked
-              ? t("map.selected_coords", { lat: picked.lat.toFixed(6), lon: picked.lng.toFixed(6) })
+            {plot
+              ? t("map.selected_coords", { lat: plot.centerLat.toFixed(6), lon: plot.centerLng.toFixed(6) })
               : t("map.no_selection")}
           </span>
           <div className="map-picker__actions">
@@ -364,8 +525,17 @@ export default function LocationMapPicker({
             <button
               type="button"
               className="map-picker__confirm"
-              disabled={!picked}
-              onClick={() => picked && onConfirm(picked)}
+              disabled={!plot}
+              onClick={() =>
+                plot &&
+                onConfirm({
+                  lat: plot.centerLat,
+                  lng: plot.centerLng,
+                  widthM: plot.widthM,
+                  heightM: plot.heightM,
+                  rotationDeg: plot.rotationDeg,
+                })
+              }
             >
               {t("map.confirm")}
             </button>

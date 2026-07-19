@@ -56,7 +56,17 @@ export default function ConfirmData() {
   const extractedDeedRaw = useFormStore((state) => state.extractedDeedRaw);
   const setLandDimensions = useFormStore((state) => state.setLandDimensions);
   const setLandCoordinates = useFormStore((state) => state.setLandCoordinates);
+  const setLandRotation = useFormStore((state) => state.setLandRotation);
   const deedBoundaryFields = buildBoundaryFields(extractedDeedRaw);
+
+  // Numeric deed boundary lengths (m), for the map's reference overlay —
+  // only the ones we could actually parse a number out of.
+  const deedBoundaries = {
+    north: Number(leadingNumber(extractedDeedRaw?.boundaries?.north)) || 0,
+    south: Number(leadingNumber(extractedDeedRaw?.boundaries?.south)) || 0,
+    east: Number(leadingNumber(extractedDeedRaw?.boundaries?.east)) || 0,
+    west: Number(leadingNumber(extractedDeedRaw?.boundaries?.west)) || 0,
+  };
 
   const [fields, setFields] = useState(deedBoundaryFields ?? FALLBACK_BOUNDARIES);
   const [editingId, setEditingId] = useState(null);
@@ -80,6 +90,9 @@ export default function ConfirmData() {
   // Where the current coords came from, so we can show the right badge —
   // 'qr' only reflects the deed's own QR code until the user relocates.
   const [coordsSource, setCoordsSource] = useState(initCoords ? "qr" : null);
+  // Plot orientation from the map's rotation handle — purely visual, saved
+  // alongside dimensions/coordinates once the user confirms.
+  const [rotation, setRotation] = useState(0);
 
   const dimensionsComplete =
     dimensions.width.trim() !== "" &&
@@ -101,6 +114,7 @@ export default function ConfirmData() {
     }
     setLandDimensions(dimensions);
     setLandCoordinates({ lat: Number(coords.lat), lng: Number(coords.lng) });
+    setLandRotation(rotation);
     navigate("/questions/1");
   }
 
@@ -397,8 +411,12 @@ export default function ConfirmData() {
             initialLng={coords.lng ? Number(coords.lng) : null}
             landWidth={dimensions.width}
             landHeight={dimensions.height}
-            onConfirm={({ lat, lng }) => {
+            initialRotationDeg={rotation}
+            deedBoundaries={deedBoundaries}
+            onConfirm={({ lat, lng, widthM, heightM, rotationDeg }) => {
               setCoords({ lat: String(lat), lng: String(lng) });
+              setDimensions({ width: String(Math.round(widthM * 10) / 10), height: String(Math.round(heightM * 10) / 10) });
+              setRotation(rotationDeg);
               setCoordsSource("map");
               setMapOpen(false);
             }}
