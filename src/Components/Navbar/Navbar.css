@@ -1,8 +1,8 @@
 .navbar {
   height: 72px;
   padding: 0 40px;
-  background: #ffffff;
-  border-bottom: 1px solid #c9d4de;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -10,9 +10,10 @@
 
 .navbar__title {
   margin: 0;
+  font-family: var(--display);
   font-size: 20px;
   font-weight: 600;
-  color: #14263f;
+  color: var(--ink);
 }
 
 .navbar__lang {
@@ -20,5 +21,5 @@
   border: none;
   padding: 0;
   font-size: 14px;
-  color: #1f4e79;
+  color: var(--olive-dark);
 }

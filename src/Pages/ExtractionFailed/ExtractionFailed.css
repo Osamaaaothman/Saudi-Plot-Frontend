@@ -52,27 +52,27 @@
 .error-banner__subtitle {
   margin: 0;
   font-size: 14px;
-  color: #5a6570;
+  color: var(--muted);
 }
 
 .extraction-failed__divider {
   margin: 0;
   font-size: 14px;
-  color: #8a949e;
+  color: var(--muted-light);
 }
 
 .manual-form {
   width: 100%;
   box-sizing: border-box;
-  background: #ffffff;
-  border: 1px solid #e2e9f0;
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 16px;
   padding: 28px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 14px;
-  box-shadow: 0 10px 30px rgba(20, 38, 63, 0.06);
+  box-shadow: 0 10px 30px rgba(41, 35, 27, 0.06);
 }
 
 .manual-form__input {
@@ -81,16 +81,17 @@
 
 .manual-form__title {
   margin: 0;
+  font-family: var(--display);
   font-size: 20px;
   font-weight: 600;
-  color: #14263f;
+  color: var(--ink);
   align-self: flex-end;
 }
 
 .manual-form__subtitle {
   margin: 0;
   font-size: 14px;
-  color: #5a6570;
+  color: var(--muted);
   align-self: flex-end;
 }
 
@@ -105,27 +106,27 @@
 .manual-form__label {
   font-size: 14px;
   font-weight: 500;
-  color: #14263f;
+  color: var(--ink);
 }
 
 .manual-form__input {
   width: 100%;
   box-sizing: border-box;
-  background: #fbfcff;
-  border: 1px solid #c9d4de;
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
   border-radius: 10px;
   padding: 13px 16px;
   font-size: 14px;
   font-family: inherit;
   text-align: right;
-  color: #14263f;
+  color: var(--ink);
 }
 
 .manual-form__input:focus {
-  outline: 2px solid #7a9cc6;
+  outline: 2px solid var(--olive);
   outline-offset: 1px;
 }
 
 .manual-form__input::placeholder {
-  color: #8a949e;
+  color: var(--muted-light);
 }

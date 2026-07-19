@@ -13,7 +13,7 @@
 }
 
 .btn:focus-visible {
-  outline: 3px solid rgba(31, 78, 121, 0.35);
+  outline: 3px solid rgba(41, 35, 27, 0.35);
   outline-offset: 2px;
 }
 
@@ -22,30 +22,30 @@
 }
 
 .btn--primary {
-  background: linear-gradient(180deg, #235688 0%, #1f4e79 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(31, 78, 121, 0.25);
+  background: var(--dark);
+  color: #fff9ee;
+  box-shadow: 0 4px 12px rgba(41, 35, 27, 0.25);
 }
 
 .btn--primary:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.15);
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(31, 78, 121, 0.32);
+  box-shadow: 0 6px 18px rgba(41, 35, 27, 0.32);
 }
 
 .btn--primary:active {
   transform: translateY(0) scale(0.98);
-  box-shadow: 0 2px 8px rgba(31, 78, 121, 0.24);
+  box-shadow: 0 2px 8px rgba(41, 35, 27, 0.24);
 }
 
 .btn--secondary {
-  background: #ffffff;
-  color: #1f4e79;
-  border: 1.5px solid #1f4e79;
+  background: var(--card);
+  color: var(--dark);
+  border: 1.5px solid var(--dark);
 }
 
 .btn--secondary:hover {
-  background: #eef4fd;
+  background: var(--sand-tint);
   transform: translateY(-1px);
 }
 

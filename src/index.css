@@ -1,3 +1,22 @@
+:root {
+  --ink: #29231b;
+  --muted: #746b5f;
+  --muted-light: #9a8f80;
+  --paper: #f8f1e5;
+  --paper-strong: #fffaf1;
+  --card: #fffaf0;
+  --sand: #dfccb0;
+  --sand-tint: #f3ead9;
+  --sand-tint-strong: #eee3cf;
+  --line: rgba(72, 58, 42, 0.17);
+  --olive: #6e7248;
+  --olive-dark: #505632;
+  --clay: #9d5b3e;
+  --dark: #25231d;
+  --display: "Noto Kufi Arabic", "IBM Plex Sans Arabic", sans-serif;
+  --body: "IBM Plex Sans Arabic", "Segoe UI", sans-serif;
+}
+
 *,
 *::before,
 *::after {
@@ -11,12 +30,13 @@ body {
 }
 
 html {
-  background-color: #f6f8fb;
+  background-color: var(--paper);
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: "IBM Plex Sans Arabic", sans-serif;
-  color: #14263f;
+  font-family: var(--body);
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
 

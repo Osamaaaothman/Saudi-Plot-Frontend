@@ -26,8 +26,8 @@
 }
 
 .confirm-data__badge {
-  background: #e8f6ee;
-  color: #1d5c2b;
+  background: #e9eedf;
+  color: #53633c;
   border-radius: 999px;
   padding: 8px 18px;
   font-size: 14px;
@@ -36,25 +36,26 @@
 
 .confirm-data__title {
   margin: 0;
+  font-family: var(--display);
   font-size: 32px;
   font-weight: 600;
-  color: #14263f;
+  color: var(--ink);
 }
 
 .confirm-data__subtitle {
   margin: 0 0 8px;
   font-size: 15px;
-  color: #5a6570;
+  color: var(--muted);
 }
 
 .confirm-card {
   width: 100%;
   box-sizing: border-box;
-  background: #ffffff;
-  border: 1px solid #e2e9f0;
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(20, 38, 63, 0.06);
+  box-shadow: 0 10px 30px rgba(41, 35, 27, 0.06);
 }
 
 .confirm-row {
@@ -62,7 +63,7 @@
 }
 
 .confirm-row:hover {
-  background: #f8fafc;
+  background: var(--sand-tint);
 }
 
 .confirm-row__edit {
@@ -70,7 +71,7 @@
 }
 
 .confirm-row__edit:hover {
-  color: #14263f;
+  color: var(--ink);
 }
 
 .confirm-row {
@@ -79,7 +80,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 18px 24px;
-  border-top: 1px solid #ebf0f5;
+  border-top: 1px solid var(--line);
 }
 
 .confirm-row--first {
@@ -94,21 +95,21 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #14263f;
+  color: var(--ink);
 }
 
 .confirm-row__label {
   margin: 2px 0 0;
   font-size: 13px;
-  color: #8a949e;
+  color: var(--muted-light);
 }
 
 .confirm-row__input {
   font-family: inherit;
   font-size: 16px;
   font-weight: 600;
-  color: #14263f;
-  border: 1px solid #7a9cc6;
+  color: var(--ink);
+  border: 1px solid var(--olive);
   border-radius: 8px;
   padding: 4px 8px;
   text-align: right;
@@ -122,14 +123,14 @@
   padding: 0;
   font-size: 14px;
   font-weight: 500;
-  color: #1f4e79;
+  color: var(--olive-dark);
   text-decoration: underline;
 }
 
 .confirm-data__source {
   margin: 4px 0 8px;
   font-size: 12.5px;
-  color: #8a949e;
+  color: var(--muted-light);
 }
 
 /* ─── Extra sections (document / property / owners / QR / extra) ─── */
@@ -137,19 +138,20 @@
 .confirm-section {
   width: 100%;
   box-sizing: border-box;
-  background: #ffffff;
-  border: 1px solid #e2e9f0;
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 16px;
   padding: 22px 24px;
-  box-shadow: 0 10px 30px rgba(20, 38, 63, 0.06);
+  box-shadow: 0 10px 30px rgba(41, 35, 27, 0.06);
   text-align: right;
 }
 
 .confirm-section__title {
   margin: 0 0 14px;
+  font-family: var(--display);
   font-size: 16px;
   font-weight: 600;
-  color: #14263f;
+  color: var(--ink);
 }
 
 .confirm-section__body {
@@ -173,13 +175,13 @@
 .info-row__value {
   font-size: 15px;
   font-weight: 600;
-  color: #14263f;
+  color: var(--ink);
   word-break: break-word;
 }
 
 .info-row__label {
   font-size: 12.5px;
-  color: #8a949e;
+  color: var(--muted-light);
 }
 
 /* Owners */
@@ -188,8 +190,8 @@
 }
 
 .owner-card {
-  background: #f8fafc;
-  border: 1px solid #ebf0f5;
+  background: var(--sand-tint);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 12px 16px;
 }
@@ -198,7 +200,7 @@
   margin: 0 0 4px;
   font-size: 15px;
   font-weight: 600;
-  color: #14263f;
+  color: var(--ink);
 }
 
 .owner-card__meta {
@@ -206,13 +208,13 @@
   flex-wrap: wrap;
   gap: 4px 16px;
   font-size: 13px;
-  color: #5a6570;
+  color: var(--muted);
 }
 
 /* Coordinates / map section */
 .confirm-section--map {
-  border-color: #bfe0cc;
-  background: #f4fbf6;
+  border-color: #c3d1a3;
+  background: #f1f4ea;
 }
 
 .coords-row {
@@ -231,20 +233,20 @@
 .coords-row__value {
   font-size: 16px;
   font-weight: 600;
-  color: #14263f;
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
 .coords-row__label {
   font-size: 12.5px;
-  color: #5a6570;
+  color: var(--muted);
 }
 
 .coords-row__link {
   align-self: flex-end;
   font-size: 14px;
   font-weight: 500;
-  color: #1d5c2b;
+  color: #53633c;
   text-decoration: underline;
 }
 
@@ -252,7 +254,7 @@
 .qr-link {
   font-size: 14px;
   font-weight: 500;
-  color: #1f4e79;
+  color: var(--olive-dark);
   text-decoration: underline;
   align-self: flex-end;
 }
@@ -260,9 +262,9 @@
 .qr-code-text {
   margin: 0;
   font-size: 13px;
-  color: #5a6570;
+  color: var(--muted);
   word-break: break-all;
-  background: #f8fafc;
+  background: var(--sand-tint);
   border-radius: 8px;
   padding: 8px 12px;
 }
