@@ -10,7 +10,6 @@
 }
 
 .landing-page a {
-  color: inherit;
   text-decoration: none;
 }
 
@@ -36,6 +35,7 @@
   background-position: center center;
   transform: scale(1.01);
 }
+.landing-hero-image { transition: transform 0.1s linear; }
 .landing-hero-shade {
   position: absolute;
   inset: 0;
@@ -44,6 +44,44 @@
     linear-gradient(180deg, rgba(251, 246, 237, .90) 0%, rgba(251, 246, 237, .38) 23%, rgba(251, 246, 237, .12) 58%, rgba(47, 38, 28, .10) 100%),
     radial-gradient(circle at 50% 39%, rgba(255, 251, 243, .92) 0%, rgba(255, 251, 243, .58) 31%, rgba(255, 251, 243, 0) 64%);
 }
+
+/* Soft animated gradient glow behind the headline */
+.landing-hero-glow {
+  position: absolute;
+  z-index: -1;
+  top: 32%;
+  left: 50%;
+  width: 620px;
+  height: 620px;
+  max-width: 90vw;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(157, 91, 62, .16) 0%, rgba(110, 114, 72, .10) 38%, transparent 68%);
+  filter: blur(10px);
+  animation: landing-glow 9s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes landing-glow {
+  0%, 100% { opacity: .75; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.12); }
+}
+
+/* Scroll-reveal — only active once JS adds .landing-js, so the page is
+   fully visible if JS never runs or reduced motion is preferred. */
+.landing-js .landing-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.landing-js .landing-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+/* Staggered reveal for cards within a grid */
+.landing-js .landing-steps-grid .landing-reveal:nth-child(2) { transition-delay: 0.12s; }
+.landing-js .landing-steps-grid .landing-reveal:nth-child(3) { transition-delay: 0.24s; }
+.landing-js .landing-feature-grid .landing-reveal:nth-child(2) { transition-delay: 0.12s; }
+.landing-js .landing-feature-grid .landing-reveal:nth-child(3) { transition-delay: 0.24s; }
 
 .landing-site-header {
   width: min(1320px, calc(100% - 64px));
@@ -131,6 +169,11 @@
 }
 .landing-primary-button { background: var(--dark); color: #fff9ee; box-shadow: 0 13px 28px rgba(41, 35, 27, .22); }
 .landing-primary-button:hover { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(41, 35, 27, .28); }
+.landing-primary-button:active, .landing-outline-button:active, .landing-nav-cta:active, .landing-upload-action:active { transform: translateY(0) scale(.975); }
+.landing-nav-cta { transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+.landing-nav-cta:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(41, 35, 27, .22); }
+.landing-upload-action { transition: transform .18s ease, box-shadow .2s ease, filter .2s ease; }
+.landing-upload-action:hover { transform: translateY(-1px); filter: brightness(1.12); box-shadow: 0 12px 24px rgba(41, 35, 27, .24); }
 .landing-primary-button span, .landing-outline-button span { font-size: 22px; line-height: 1; }
 .landing-text-button { display: inline-flex; gap: 10px; align-items: center; color: var(--olive-dark); font-weight: 700; font-size: 14px; }
 .landing-trust-line { margin-top: 25px; display: flex; align-items: center; justify-content: center; gap: 9px; color: #6c6359; font-size: 12px; }
@@ -140,8 +183,8 @@
 .landing-scroll-cue b { font-size: 20px; animation: landing-bob 1.8s infinite ease-in-out; }
 @keyframes landing-bob { 50% { transform: translateY(4px); } }
 
-.landing-section { padding: 120px max(32px, calc((100vw - 1220px) / 2)); }
-.landing-section-intro { text-align: center; max-width: 760px; margin: 0 auto 56px; }
+.landing-section { padding: clamp(72px, 8.5vw, 116px) max(28px, calc((100vw - 1220px) / 2)); }
+.landing-section-intro { text-align: center; max-width: 760px; margin: 0 auto clamp(38px, 5vw, 56px); }
 .landing-section-intro h2, .landing-start-copy h2, .landing-result-copy h2, .landing-final-cta h2 {
   font-family: var(--display);
   font-size: clamp(34px, 3.5vw, 52px);

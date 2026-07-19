@@ -1,6 +1,72 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Landing.css";
+
+const arabicNumber = new Intl.NumberFormat("ar-EG");
+
+// Counts up from 0 to `target` once it scrolls into view. Falls back to the
+// final value immediately when reduced motion is preferred or IO is missing.
+function prefersStaticCount() {
+  if (typeof window === "undefined") return true;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return reduce || typeof IntersectionObserver === "undefined";
+}
+
+function Counter({ target, className }) {
+  const ref = useRef(null);
+  // Start at the final value when we won't animate, so the effect never has to
+  // call setState synchronously just to show the number.
+  const [value, setValue] = useState(() => (prefersStaticCount() ? target : 0));
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || prefersStaticCount()) return undefined;
+
+    let frame;
+    let done = false;
+    const runCount = () => {
+      if (done) return;
+      done = true;
+      const duration = 1400;
+      const start = performance.now();
+      const tick = (now) => {
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        setValue(Math.round(eased * target));
+        if (t < 1) frame = requestAnimationFrame(tick);
+      };
+      frame = requestAnimationFrame(tick);
+    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return;
+        observer.disconnect();
+        runCount();
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    // Failsafe: never leave the number stuck at 0 if IO/rAF misbehaves.
+    const failsafe = setTimeout(() => {
+      observer.disconnect();
+      if (!done) {
+        done = true;
+        setValue(target);
+      }
+    }, 2500);
+    return () => {
+      observer.disconnect();
+      clearTimeout(failsafe);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [target]);
+
+  return (
+    <b ref={ref} className={className}>
+      {arabicNumber.format(value)}
+    </b>
+  );
+}
 
 const steps = [
   {
@@ -28,16 +94,75 @@ const features = [
 
 export default function Landing() {
   const uploadRef = useRef(null);
+  const pageRef = useRef(null);
+  const heroImageRef = useRef(null);
   const [fileName, setFileName] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const chooseFile = () => uploadRef.current?.click();
 
+  // Scroll-reveal + hero parallax. Everything is opt-in via the "landing-js"
+  // class added here, so if JS never runs (or reduced motion is preferred)
+  // nothing is hidden or transformed — the page renders fully static.
+  useEffect(() => {
+    const page = pageRef.current;
+    if (!page) return undefined;
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return undefined;
+
+    page.classList.add("landing-js");
+
+    let observer;
+    if (typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
+      );
+      page.querySelectorAll(".landing-reveal").forEach((el) => observer.observe(el));
+    }
+
+    // Failsafe: if the observer never reveals anything (e.g. IO throttled or
+    // unsupported), force everything visible so content is never stuck hidden.
+    const revealFailsafe = setTimeout(() => {
+      if (!page.querySelector(".landing-reveal.is-visible")) {
+        page.querySelectorAll(".landing-reveal").forEach((el) => el.classList.add("is-visible"));
+      }
+    }, 2200);
+
+    let rafId = null;
+    const onScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const img = heroImageRef.current;
+        if (img) img.style.transform = `scale(1.05) translateY(${window.scrollY * 0.18}px)`;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      if (observer) observer.disconnect();
+      clearTimeout(revealFailsafe);
+      window.removeEventListener("scroll", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+      page.classList.remove("landing-js");
+    };
+  }, []);
+
   return (
-    <main className="landing-page">
+    <main className="landing-page" ref={pageRef}>
       <section className="landing-hero" id="home">
-        <div className="landing-hero-image" aria-hidden="true" />
+        <div className="landing-hero-image" aria-hidden="true" ref={heroImageRef} />
         <div className="landing-hero-shade" aria-hidden="true" />
+        <div className="landing-hero-glow" aria-hidden="true" />
 
         <header className="landing-site-header">
           <a className="landing-brand" href="#home" aria-label="عَمِّر أرضك - الرئيسية">
@@ -96,7 +221,7 @@ export default function Landing() {
       </section>
 
       <section className="landing-how landing-section" id="how">
-        <div className="landing-section-intro">
+        <div className="landing-section-intro landing-reveal">
           <span className="landing-kicker">كيف يعمل؟</span>
           <h2>ثلاث خطوات تفصل أرضك<br />عن أول تصور لبيتك</h2>
           <p>لا تحتاج إلى خبرة معمارية؛ نرشدك بوضوح من أول معلومة إلى أول مخطط.</p>
@@ -104,7 +229,7 @@ export default function Landing() {
 
         <div className="landing-steps-grid">
           {steps.map((step, index) => (
-            <article className="landing-step-card" key={step.title}>
+            <article className="landing-step-card landing-reveal" key={step.title}>
               <div className="landing-step-top">
                 <span className="landing-step-number">{step.number}</span>
                 <span className="landing-step-icon" aria-hidden="true">
@@ -171,7 +296,7 @@ export default function Landing() {
       </section>
 
       <section className="landing-features landing-section" id="features">
-        <div className="landing-section-intro landing-split-intro">
+        <div className="landing-section-intro landing-split-intro landing-reveal">
           <div>
             <span className="landing-kicker">مصمم لحياة حقيقية</span>
             <h2>العمارة تبدأ من الناس،<br />لا من الجدران</h2>
@@ -184,7 +309,7 @@ export default function Landing() {
 
         <div className="landing-feature-grid">
           {features.map(([title, text], index) => (
-            <article className="landing-feature-card" key={title}>
+            <article className="landing-feature-card landing-reveal" key={title}>
               <span className="landing-feature-index">٠{index + 1}</span>
               <div className="landing-feature-glyph" aria-hidden="true">
                 {index === 0 ? "⌗" : index === 1 ? "◎" : "✦"}
@@ -197,16 +322,16 @@ export default function Landing() {
       </section>
 
       <section className="landing-results landing-section" id="results">
-        <div className="landing-result-visual">
+        <div className="landing-result-visual landing-reveal">
           <img
             className="landing-result-image"
             src="/floor-plan-sample.jpeg"
             alt="مخطط أولي ثنائي الأبعاد لأرض بمساحة 2,892.3 م²"
           />
-          <div className="landing-result-tag"><b>٢٬٨٩٢</b><span>م² مساحة الأرض</span></div>
+          <div className="landing-result-tag"><Counter target={2892} /><span>م² مساحة الأرض</span></div>
         </div>
 
-        <div className="landing-result-copy">
+        <div className="landing-result-copy landing-reveal">
           <span className="landing-kicker landing-kicker--light">النتيجة الأولى</span>
           <h2>تصور تفهمه<br />وتبني عليه</h2>
           <p>
@@ -224,7 +349,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="landing-final-cta landing-section">
+      <section className="landing-final-cta landing-section landing-reveal">
         <span className="landing-kicker">خطوتك الأولى أسهل مما تتخيل</span>
         <h2>أرضك تحمل حكاية بيتك.<br />لنبدأ برسمها.</h2>
         <Link className="landing-primary-button" to="/upload">
