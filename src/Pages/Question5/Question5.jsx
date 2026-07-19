@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import QuestionLayout from "../../Components/QuestionLayout/QuestionLayout";
+import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
 
 const ROW_1 = ["غسيل وكيّ", "غرفة عاملة منزلية بحمّام", "غرفة سائق بحمّام"];

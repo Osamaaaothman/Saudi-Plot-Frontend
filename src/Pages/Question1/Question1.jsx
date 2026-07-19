@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import QuestionLayout from "../../Components/QuestionLayout/QuestionLayout";
 import Stepper from "../../Components/Stepper/Stepper";
+import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
 
 export default function Question1() {

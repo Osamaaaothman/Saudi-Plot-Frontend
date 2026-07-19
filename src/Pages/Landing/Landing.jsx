@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import usePageTitle from "../../hooks/usePageTitle";
 import "./Landing.css";
 
 const arabicNumber = new Intl.NumberFormat("ar-EG");

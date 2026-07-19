@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import QuestionLayout from "../../Components/QuestionLayout/QuestionLayout";
+import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
 
 const OPTIONS = ["مفتوح على الصالة", "مغلق", "مغلق + مطبخ تحضيري"];

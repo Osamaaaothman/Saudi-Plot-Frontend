@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import QuestionLayout from "../../Components/QuestionLayout/QuestionLayout";
+import usePageTitle from "../../hooks/usePageTitle";
 import "./Question6.css";
 
 const TAGS = [

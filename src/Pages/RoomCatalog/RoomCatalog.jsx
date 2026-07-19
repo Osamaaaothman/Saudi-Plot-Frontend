@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
 import Stepper from "../../Components/Stepper/Stepper";
+import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
 import { useSlideDirection } from "../../Components/QuestionLayout/SlideDirectionContext";
 import { slideVariants, slideTransition } from "../../Components/QuestionLayout/slideVariants";

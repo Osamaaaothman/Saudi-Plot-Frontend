@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import usePageTitle from '../../hooks/usePageTitle';
 import './Result3D.css';
 
 const Result3D = () => {
