@@ -5,19 +5,26 @@ import usePageTitle from "../../hooks/usePageTitle";
 import "./Question6.css";
 
 const TAGS = [
-  { label: "رئيسية · 28م²", color: "pink" },
-  { label: "نوم ×3 · 46م²", color: "green" },
-  { label: "حمامات ×3 · 19م²", color: "purple" },
-  { label: "صالة · 38م²", color: "gray" },
-  { label: "مطبخ تحضيري · 28م²", color: "yellow" },
-  { label: "مجلس + مقلط · 46م²", color: "blue" },
-  { label: "حمام ضيوف · 5م²", color: "purple" },
-  { label: "سائق وعاملة · 24م²", color: "blue" },
-  { label: "غسيل · 8م²", color: "gray" },
+  { labelKeys: ["room_catalog.master"], size: "28", color: "pink" },
+  { labelKeys: ["room_catalog.bedroom"], count: "3", size: "46", color: "green" },
+  { labelKeys: ["room_catalog.bathroom"], count: "3", size: "19", color: "purple" },
+  { labelKeys: ["room_catalog.living"], size: "38", color: "gray" },
+  { labelKeys: ["room_catalog.prep_kitchen"], size: "28", color: "yellow" },
+  { labelKeys: ["room_catalog.majlis", "room_catalog.dining"], size: "46", color: "blue" },
+  { labelKeys: ["room_catalog.guest_bath"], size: "5", color: "purple" },
+  { labelKeys: ["room_catalog.driver_room"], size: "24", color: "blue" },
+  { labelKeys: ["room_catalog.laundry"], size: "8", color: "gray" },
 ];
 
+function tagLabel(t, i18n, tag) {
+  const name = tag.labelKeys.map((k) => t(k)).join(" + ");
+  const count = tag.count ? ` ×${tag.count}` : "";
+  const unit = i18n.language === "ar" ? "م²" : "m²";
+  return `${name}${count} · ${tag.size}${unit}`;
+}
+
 export default function Question6() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -33,8 +40,8 @@ export default function Question6() {
     >
       <div className="space-tags">
         {TAGS.map((tag) => (
-          <span key={tag.label} className={`space-tag space-tag--${tag.color}`}>
-            {tag.label}
+          <span key={tag.labelKeys[0]} className={`space-tag space-tag--${tag.color}`}>
+            {tagLabel(t, i18n, tag)}
           </span>
         ))}
       </div>

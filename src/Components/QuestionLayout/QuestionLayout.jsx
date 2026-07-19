@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import Button from "../Button/Button";
 import WizardHeader from "../WizardHeader/WizardHeader";
 import { WIZARD_STEPS } from "./wizardSteps";
@@ -15,10 +16,13 @@ export default function QuestionLayout({
   onBack,
   onNext,
   nextDisabled = false,
-  nextLabel = "التالي",
-  backLabel = "السابق",
+  nextLabel: nextLabelProp,
+  backLabel: backLabelProp,
   singleAction = false,
 }) {
+  const { t } = useTranslation();
+  const nextLabel = nextLabelProp ?? t("question.next");
+  const backLabel = backLabelProp ?? t("question.back");
   const progress = stepIndex / WIZARD_STEPS.length;
   const StepIcon = WIZARD_STEPS[stepIndex - 1]?.Icon;
   const direction = useSlideDirection();
@@ -38,18 +42,18 @@ export default function QuestionLayout({
         {/* Sidebar is first in DOM so RTL flex places it on the visual RIGHT,
             with the question card on the LEFT — matching the design. */}
         <aside className="wizard-sidebar">
-          <p className="wizard-sidebar__title">أسئلة بيتك</p>
-          <p className="wizard-sidebar__subtitle">6 أسئلة قصيرة — دقيقتان</p>
+          <p className="wizard-sidebar__title">{t("wizard.sidebar.title")}</p>
+          <p className="wizard-sidebar__subtitle">{t("wizard.sidebar.subtitle")}</p>
 
           <div className="wizard-sidebar__list">
-            {WIZARD_STEPS.map(({ path, label, Icon }, idx) => {
+            {WIZARD_STEPS.map(({ path, labelKey, Icon }, idx) => {
               const num = idx + 1;
               const status = num < stepIndex ? "done" : num === stepIndex ? "active" : "pending";
               return (
                 <div className={`wizard-sidebar__item wizard-sidebar__item--${status}`} key={path}>
                   {/* DOM order reversed (label, icon, badge) so RTL flex places
                       the label at the visual right and the badge at the left. */}
-                  <span className="wizard-sidebar__label">{label}</span>
+                  <span className="wizard-sidebar__label">{t(labelKey)}</span>
                   <span className="wizard-sidebar__icon">
                     <Icon />
                   </span>
