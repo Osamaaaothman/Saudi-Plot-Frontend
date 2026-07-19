@@ -1,23 +1,11 @@
 .wizard-header {
-  height: 72px;
+  height: 88px;
   padding: 0 40px;
   background: var(--card);
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
   gap: 20px;
-}
-
-.wizard-header__icon {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: var(--sand-tint-strong);
-  color: var(--olive-dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .wizard-header__brand {
@@ -29,7 +17,7 @@
   margin: 0;
   font-family: var(--display);
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink);
 }
 
@@ -81,6 +69,7 @@
 
 @media (max-width: 768px) {
   .wizard-header {
+    height: 74px;
     padding: 0 16px;
     gap: 12px;
   }

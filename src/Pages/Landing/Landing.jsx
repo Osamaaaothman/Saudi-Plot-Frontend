@@ -197,13 +197,12 @@ export default function Landing() {
       </section>
 
       <section className="landing-results landing-section" id="results">
-        <div className="landing-result-visual" aria-hidden="true">
-          <div className="landing-blueprint-frame">
-            <span className="landing-room landing-room-one">مجلس</span>
-            <span className="landing-room landing-room-two">صالة</span>
-            <span className="landing-room landing-room-three">مطبخ</span>
-            <span className="landing-room landing-room-four">جناح رئيسي</span>
-          </div>
+        <div className="landing-result-visual">
+          <img
+            className="landing-result-image"
+            src="/floor-plan-sample.jpeg"
+            alt="مخطط أولي ثنائي الأبعاد لأرض بمساحة 2,892.3 م²"
+          />
           <div className="landing-result-tag"><b>٢٬٨٩٢</b><span>م² مساحة الأرض</span></div>
         </div>
 

@@ -1,3 +1,4 @@
+import BrandMark from "../BrandMark/BrandMark";
 import "./WizardHeader.css";
 
 export default function WizardHeader({ progress, onBack, onNext }) {
@@ -5,14 +6,8 @@ export default function WizardHeader({ progress, onBack, onNext }) {
     <header className="wizard-header">
       {/* DOM order is reversed from the visual left-to-right order so that
           RTL flex (first child -> visual right) reproduces the design:
-          icon, brand, mini-back, progress, mini-next, EN. */}
-      <div className="wizard-header__icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-          <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M4 9.5h16" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M8 3v3M16 3v3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-      </div>
+          brand mark, brand text, mini-back, progress, mini-next, EN. */}
+      <BrandMark size="sm" />
 
       <div className="wizard-header__brand">
         <p className="wizard-header__title">عمّر أرضك</p>
