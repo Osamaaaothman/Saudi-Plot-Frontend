@@ -266,6 +266,7 @@
   "map.pick_button": "اختر الموقع من الخريطة ←",
   "map.relocate_button": "تعديل الموقع على الخريطة ←",
   "map.dims_badge": "أبعاد أرضك: {{width}}م × {{height}}م",
+  "map.dims_label": "{{width}}×{{height}} م",
   "map.title": "اختر موقع أرضك",
   "map.close": "إغلاق",
   "map.search_placeholder": "ابحث عن مدينة أو حي أو عنوان...",

@@ -266,6 +266,7 @@
   "map.pick_button": "Choose location on map ←",
   "map.relocate_button": "Adjust location on map ←",
   "map.dims_badge": "Land size: {{width}}m × {{height}}m",
+  "map.dims_label": "{{width}}×{{height}} m",
   "map.title": "Choose your land's location",
   "map.close": "Close",
   "map.search_placeholder": "Search for a city, district, or address...",
