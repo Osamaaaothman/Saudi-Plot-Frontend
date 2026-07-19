@@ -339,6 +339,17 @@
   color: #53633c;
 }
 
+.confirm-dims__dims-badge {
+  align-self: flex-end;
+  margin: -4px 0 14px;
+  background: var(--sand-tint-strong);
+  color: var(--olive-dark);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
 @media (max-width: 768px) {
   .confirm-dims__grid {
     grid-template-columns: 1fr;

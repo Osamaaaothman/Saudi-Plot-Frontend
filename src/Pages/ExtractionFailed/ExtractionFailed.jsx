@@ -161,6 +161,8 @@ export default function ExtractionFailed() {
           <LocationMapPicker
             initialLat={coords.lat ? Number(coords.lat) : null}
             initialLng={coords.lng ? Number(coords.lng) : null}
+            landWidth={values.width}
+            landHeight={values.height}
             onConfirm={({ lat, lng }) => {
               setCoords({ lat: String(lat), lng: String(lng) });
               setPickedFromMap(true);

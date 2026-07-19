@@ -77,7 +77,9 @@ export default function ConfirmData() {
   });
   const [coordsTouched, setCoordsTouched] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
-  const [pickedFromMap, setPickedFromMap] = useState(false);
+  // Where the current coords came from, so we can show the right badge —
+  // 'qr' only reflects the deed's own QR code until the user relocates.
+  const [coordsSource, setCoordsSource] = useState(initCoords ? "qr" : null);
 
   const dimensionsComplete =
     dimensions.width.trim() !== "" &&
@@ -85,12 +87,11 @@ export default function ConfirmData() {
     Number(dimensions.width) > 0 &&
     Number(dimensions.height) > 0;
 
-  const coordsComplete = initCoords || (
+  const coordsComplete =
     coords.lat.trim() !== "" &&
     coords.lng.trim() !== "" &&
     !isNaN(Number(coords.lat)) &&
-    !isNaN(Number(coords.lng))
-  );
+    !isNaN(Number(coords.lng));
 
   function handleContinue() {
     if (!dimensionsComplete || !coordsComplete) {
@@ -99,9 +100,7 @@ export default function ConfirmData() {
       return;
     }
     setLandDimensions(dimensions);
-    if (!initCoords) {
-      setLandCoordinates({ lat: Number(coords.lat), lng: Number(coords.lng) });
-    }
+    setLandCoordinates({ lat: Number(coords.lat), lng: Number(coords.lng) });
     navigate("/questions/1");
   }
 
@@ -159,86 +158,142 @@ export default function ConfirmData() {
           ))}
         </div>
 
-        {/* ── Coordinates from QR codes (required) ── */}
+        {/* ── Plot dimensions (required) — shown first so the map picker below
+             can reference the width/height while placing the pin. ── */}
+        <section className="confirm-section confirm-section--dims">
+          <h2 className="confirm-section__title">{t("confirm.dims_title")}</h2>
+          <p className="confirm-dims__hint">
+            {t("confirm.dims_hint")}
+          </p>
+          <div className="confirm-dims__grid">
+            <label className="confirm-dims__field">
+              <span className="confirm-dims__label">{t("confirm.dims_width")}</span>
+              <input
+                type="number"
+                min="0"
+                inputMode="decimal"
+                className={`confirm-dims__input${
+                  dimTouched && dimensions.width.trim() === "" ? " confirm-dims__input--error" : ""
+                }`}
+                placeholder={t("confirm.dims_placeholder_width")}
+                value={dimensions.width}
+                onChange={(e) => setDimensions((d) => ({ ...d, width: e.target.value }))}
+              />
+            </label>
+            <label className="confirm-dims__field">
+              <span className="confirm-dims__label">{t("confirm.dims_height")}</span>
+              <input
+                type="number"
+                min="0"
+                inputMode="decimal"
+                className={`confirm-dims__input${
+                  dimTouched && dimensions.height.trim() === "" ? " confirm-dims__input--error" : ""
+                }`}
+                placeholder={t("confirm.dims_placeholder_height")}
+                value={dimensions.height}
+                onChange={(e) => setDimensions((d) => ({ ...d, height: e.target.value }))}
+              />
+            </label>
+          </div>
+          {dimTouched && !dimensionsComplete && (
+            <p className="confirm-dims__error">{t("confirm.dims_error")}</p>
+          )}
+        </section>
+
+        {/* ── Coordinates (required) — from the deed's QR code when we can
+             read one, always adjustable on the map, or entered manually. ── */}
         <section className="confirm-section confirm-section--map">
           <h2 className="confirm-section__title">{t("confirm.coords_title")}</h2>
           <div className="confirm-section__body">
-            {initCoords ? (
-              <>
-                <div className="coords-row">
-                  <div className="coords-row__pair">
-                    <span className="coords-row__value">{initCoords.lat.toFixed(6)}</span>
-                    <span className="coords-row__label">{t("confirm.coords_lat")}</span>
-                  </div>
-                  <div className="coords-row__pair">
-                    <span className="coords-row__value">{initCoords.lng.toFixed(6)}</span>
-                    <span className="coords-row__label">{t("confirm.coords_lng")}</span>
-                  </div>
+            <p className="confirm-dims__hint">
+              {coordsSource === "qr" ? t("confirm.coords_qr_hint") : t("confirm.coords_hint")}
+            </p>
+
+            {(dimensions.width || dimensions.height) && (
+              <p className="confirm-dims__dims-badge">
+                {t("map.dims_badge", {
+                  width: dimensions.width || "—",
+                  height: dimensions.height || "—",
+                })}
+              </p>
+            )}
+
+            <button type="button" className="confirm-dims__map-btn" onClick={() => setMapOpen(true)}>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+                <path
+                  d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Z"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+                <circle cx="12" cy="9.5" r="2.4" stroke="currentColor" strokeWidth="1.6" />
+              </svg>
+              {coordsSource ? t("map.relocate_button") : t("map.pick_button")}
+            </button>
+
+            {coordsSource === "qr" && (
+              <p className="confirm-dims__picked-hint">{t("confirm.coords_source_qr")}</p>
+            )}
+            {coordsSource === "map" && (
+              <p className="confirm-dims__picked-hint">{t("map.picked_hint")}</p>
+            )}
+
+            {coords.lat && coords.lng && (
+              <div className="coords-row">
+                <div className="coords-row__pair">
+                  <span className="coords-row__value">{Number(coords.lat).toFixed(6)}</span>
+                  <span className="coords-row__label">{t("confirm.coords_lat")}</span>
                 </div>
-                {mapsUrl && (
-                  <a className="coords-row__link" href={mapsUrl} target="_blank" rel="noreferrer">
-                    {t("confirm.coords_map")}
-                  </a>
-                )}
-              </>
-            ) : (
-              <>
-                <p className="confirm-dims__hint">
-                  {t("confirm.coords_hint")}
-                </p>
-                <button type="button" className="confirm-dims__map-btn" onClick={() => setMapOpen(true)}>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
-                    <path
-                      d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Z"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                      strokeLinejoin="round"
-                    />
-                    <circle cx="12" cy="9.5" r="2.4" stroke="currentColor" strokeWidth="1.6" />
-                  </svg>
-                  {t("map.pick_button")}
-                </button>
-                {pickedFromMap && <p className="confirm-dims__picked-hint">{t("map.picked_hint")}</p>}
-                <div className="confirm-dims__grid">
-                  <label className="confirm-dims__field">
-                    <span className="confirm-dims__label">{t("confirm.coords_lat")}</span>
-                    <input
-                      type="number"
-                      step="any"
-                      inputMode="decimal"
-                      className={`confirm-dims__input${
-                        coordsTouched && coords.lat.trim() === "" ? " confirm-dims__input--error" : ""
-                      }`}
-                      placeholder={t("confirm.coords_placeholder_lat")}
-                      value={coords.lat}
-                      onChange={(e) => {
-                        setCoords((c) => ({ ...c, lat: e.target.value }));
-                        setPickedFromMap(false);
-                      }}
-                    />
-                  </label>
-                  <label className="confirm-dims__field">
-                    <span className="confirm-dims__label">{t("confirm.coords_lng")}</span>
-                    <input
-                      type="number"
-                      step="any"
-                      inputMode="decimal"
-                      className={`confirm-dims__input${
-                        coordsTouched && coords.lng.trim() === "" ? " confirm-dims__input--error" : ""
-                      }`}
-                      placeholder={t("confirm.coords_placeholder_lng")}
-                      value={coords.lng}
-                      onChange={(e) => {
-                        setCoords((c) => ({ ...c, lng: e.target.value }));
-                        setPickedFromMap(false);
-                      }}
-                    />
-                  </label>
+                <div className="coords-row__pair">
+                  <span className="coords-row__value">{Number(coords.lng).toFixed(6)}</span>
+                  <span className="coords-row__label">{t("confirm.coords_lng")}</span>
                 </div>
-                {coordsTouched && !coordsComplete && (
-                  <p className="confirm-dims__error">{t("confirm.coords_error")}</p>
-                )}
-              </>
+              </div>
+            )}
+            {mapsUrl && (
+              <a className="coords-row__link" href={mapsUrl} target="_blank" rel="noreferrer">
+                {t("confirm.coords_map")}
+              </a>
+            )}
+
+            <div className="confirm-dims__grid">
+              <label className="confirm-dims__field">
+                <span className="confirm-dims__label">{t("confirm.coords_lat")}</span>
+                <input
+                  type="number"
+                  step="any"
+                  inputMode="decimal"
+                  className={`confirm-dims__input${
+                    coordsTouched && coords.lat.trim() === "" ? " confirm-dims__input--error" : ""
+                  }`}
+                  placeholder={t("confirm.coords_placeholder_lat")}
+                  value={coords.lat}
+                  onChange={(e) => {
+                    setCoords((c) => ({ ...c, lat: e.target.value }));
+                    setCoordsSource(null);
+                  }}
+                />
+              </label>
+              <label className="confirm-dims__field">
+                <span className="confirm-dims__label">{t("confirm.coords_lng")}</span>
+                <input
+                  type="number"
+                  step="any"
+                  inputMode="decimal"
+                  className={`confirm-dims__input${
+                    coordsTouched && coords.lng.trim() === "" ? " confirm-dims__input--error" : ""
+                  }`}
+                  placeholder={t("confirm.coords_placeholder_lng")}
+                  value={coords.lng}
+                  onChange={(e) => {
+                    setCoords((c) => ({ ...c, lng: e.target.value }));
+                    setCoordsSource(null);
+                  }}
+                />
+              </label>
+            </div>
+            {coordsTouched && !coordsComplete && (
+              <p className="confirm-dims__error">{t("confirm.coords_error")}</p>
             )}
           </div>
         </section>
@@ -326,47 +381,6 @@ export default function ConfirmData() {
           </section>
         )}
 
-        {/* ── Plot dimensions (required) ── */}
-        <section className="confirm-section confirm-section--dims">
-          <h2 className="confirm-section__title">{t("confirm.dims_title")}</h2>
-          <p className="confirm-dims__hint">
-            {t("confirm.dims_hint")}
-          </p>
-          <div className="confirm-dims__grid">
-            <label className="confirm-dims__field">
-              <span className="confirm-dims__label">{t("confirm.dims_width")}</span>
-              <input
-                type="number"
-                min="0"
-                inputMode="decimal"
-                className={`confirm-dims__input${
-                  dimTouched && dimensions.width.trim() === "" ? " confirm-dims__input--error" : ""
-                }`}
-                placeholder={t("confirm.dims_placeholder_width")}
-                value={dimensions.width}
-                onChange={(e) => setDimensions((d) => ({ ...d, width: e.target.value }))}
-              />
-            </label>
-            <label className="confirm-dims__field">
-              <span className="confirm-dims__label">{t("confirm.dims_height")}</span>
-              <input
-                type="number"
-                min="0"
-                inputMode="decimal"
-                className={`confirm-dims__input${
-                  dimTouched && dimensions.height.trim() === "" ? " confirm-dims__input--error" : ""
-                }`}
-                placeholder={t("confirm.dims_placeholder_height")}
-                value={dimensions.height}
-                onChange={(e) => setDimensions((d) => ({ ...d, height: e.target.value }))}
-              />
-            </label>
-          </div>
-          {dimTouched && !dimensionsComplete && (
-            <p className="confirm-dims__error">{t("confirm.dims_error")}</p>
-          )}
-        </section>
-
         <p className="confirm-data__source">
           {docNumber ? t("confirm.source", { num: docNumber }) : t("confirm.source_fallback")}
         </p>
@@ -381,9 +395,11 @@ export default function ConfirmData() {
           <LocationMapPicker
             initialLat={coords.lat ? Number(coords.lat) : null}
             initialLng={coords.lng ? Number(coords.lng) : null}
+            landWidth={dimensions.width}
+            landHeight={dimensions.height}
             onConfirm={({ lat, lng }) => {
               setCoords({ lat: String(lat), lng: String(lng) });
-              setPickedFromMap(true);
+              setCoordsSource("map");
               setMapOpen(false);
             }}
             onClose={() => setMapOpen(false)}

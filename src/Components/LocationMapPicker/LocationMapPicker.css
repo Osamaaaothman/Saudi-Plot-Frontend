@@ -50,6 +50,13 @@
   color: var(--ink);
 }
 
+.map-picker__dims-badge {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--olive-dark);
+}
+
 .map-picker__close {
   background: var(--sand-tint-strong);
   border: none;

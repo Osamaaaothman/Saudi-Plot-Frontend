@@ -31,7 +31,14 @@ const PICKED_ZOOM = 16;
 // conditionally mounting/unmounting this component (see ConfirmData /
 // ExtractionFailed), which is also what keeps MapLibre out of the initial
 // bundle: it's lazy-imported and only fetched once the user opens the map.
-export default function LocationMapPicker({ initialLat, initialLng, onConfirm, onClose }) {
+export default function LocationMapPicker({
+  initialLat,
+  initialLng,
+  landWidth,
+  landHeight,
+  onConfirm,
+  onClose,
+}) {
   const { t, i18n } = useTranslation();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -162,7 +169,14 @@ export default function LocationMapPicker({ initialLat, initialLng, onConfirm, o
     <div className="map-picker-overlay" role="dialog" aria-modal="true" aria-label={t("map.title")}>
       <div className="map-picker">
         <header className="map-picker__header">
-          <h2 className="map-picker__title">{t("map.title")}</h2>
+          <div>
+            <h2 className="map-picker__title">{t("map.title")}</h2>
+            {landWidth && landHeight && (
+              <p className="map-picker__dims-badge">
+                {t("map.dims_badge", { width: landWidth, height: landHeight })}
+              </p>
+            )}
+          </div>
           <button type="button" className="map-picker__close" onClick={onClose} aria-label={t("map.close")}>
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
