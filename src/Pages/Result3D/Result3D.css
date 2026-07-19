@@ -136,6 +136,15 @@
   border: 2px solid var(--sand);
 }
 
+/* The map fills the card edge-to-edge instead of being centered/padded
+   like the small SVG illustration. */
+.view-container-map {
+  padding: 0;
+  overflow: hidden;
+  display: block;
+  height: 400px;
+}
+
 .house-3d {
   width: 100%;
   max-width: 400px;

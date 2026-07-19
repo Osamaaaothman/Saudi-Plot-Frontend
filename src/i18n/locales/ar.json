@@ -228,6 +228,7 @@
   "result3d.banner": "خصوصية ممتازة – إيجابي مدخل مستقل وغرف النوم بعيدة عن منطقة الضيوف",
   "result3d.toggle_2d": "مخطط 2D",
   "result3d.toggle_3d": "مخطط 3D",
+  "result3d.toggle_map": "الخريطة",
   "result3d.footer": "مجسم أولي – أولويات التصميمية بعد التصميم",
   "result3d.summary_title": "ملخص أرضك",
   "result3d.summary_total": "إجمالي",
@@ -278,6 +279,7 @@
   "map.style_satellite": "قمر صناعي",
   "map.selected_coords": "الموقع المحدد: {{lat}}, {{lon}}",
   "map.no_selection": "انقر على الخريطة أو ابحث لاختيار موقع أرضك",
+  "map.no_saved_location": "لا يوجد موقع محفوظ لأرضك بعد.",
   "map.cancel": "إلغاء",
   "map.confirm": "تأكيد الموقع",
   "map.picked_hint": "تم اختيار الموقع من الخريطة ✓"

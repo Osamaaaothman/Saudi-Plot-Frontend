@@ -228,6 +228,7 @@
   "result3d.banner": "Excellent privacy — positive independent entrance and bedrooms away from guest area",
   "result3d.toggle_2d": "2D Plan",
   "result3d.toggle_3d": "3D Plan",
+  "result3d.toggle_map": "Map",
   "result3d.footer": "Preliminary model — design priorities after design",
   "result3d.summary_title": "Your land summary",
   "result3d.summary_total": "Total",
@@ -278,6 +279,7 @@
   "map.style_satellite": "Satellite",
   "map.selected_coords": "Selected location: {{lat}}, {{lon}}",
   "map.no_selection": "Click the map or search to choose your land's location",
+  "map.no_saved_location": "No saved location for your land yet.",
   "map.cancel": "Cancel",
   "map.confirm": "Confirm location",
   "map.picked_hint": "Location picked from the map ✓"

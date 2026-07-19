@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { buildPlotRectangle } from "../../utils/plotGeometry";
 import "./LocationMapPicker.css";
 
 // Free, no-signup basemaps only:
@@ -38,29 +39,6 @@ const RECT_LABEL_SOURCE_ID = "land-plot-label";
 const RECT_LABEL_LAYER = "land-plot-label-text";
 
 const EMPTY_FEATURE_COLLECTION = { type: "FeatureCollection", features: [] };
-
-/**
- * Build a rectangle (as GeoJSON) representing the land plot footprint,
- * centered on the picked point. `width` runs east-west, `height` runs
- * north-south — the deed only gives two raw measurements, not orientation,
- * so this is a best-effort visual approximation, not a survey-accurate plot.
- * Longitude degrees shrink with latitude, so the conversion has to account
- * for cos(lat); latitude degrees are ~constant across the earth's surface.
- */
-function buildPlotRectangle(lat, lng, widthM, heightM) {
-  const metersPerDegLat = 111320;
-  const metersPerDegLng = 111320 * Math.cos((lat * Math.PI) / 180);
-  const dLat = heightM / 2 / metersPerDegLat;
-  const dLng = widthM / 2 / metersPerDegLng;
-  const corners = [
-    [lng - dLng, lat - dLat],
-    [lng + dLng, lat - dLat],
-    [lng + dLng, lat + dLat],
-    [lng - dLng, lat + dLat],
-    [lng - dLng, lat - dLat],
-  ];
-  return { type: "Polygon", coordinates: [corners] };
-}
 
 // Always treated as "open" while mounted — the parent controls visibility by
 // conditionally mounting/unmounting this component (see ConfirmData /

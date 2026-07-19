@@ -1,11 +1,18 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import usePageTitle from '../../hooks/usePageTitle';
+import { useFormStore } from '../../Store/useFormStore';
 import './Result3D.css';
+
+// MapLibre GL is a heavy dependency (~1MB) — only fetch it once someone
+// actually opens the map tab, instead of bundling it into every page load.
+const PlotMapView = lazy(() => import('../../Components/PlotMapView/PlotMapView'));
 
 const Result3D = () => {
   const { t } = useTranslation();
   const [viewMode, setViewMode] = useState('3D');
+  const landCoordinates = useFormStore((state) => state.landCoordinates);
+  const landDimensions = useFormStore((state) => state.landDimensions);
 
   return (
     <div className="house-plan-wrapper" dir="rtl">
@@ -32,79 +39,98 @@ const Result3D = () => {
           <div className="house-plan-view">
             {/* View Toggle - at top of view area */}
             <div className="view-toggle">
-              <button 
+              <button
                 className={`toggle-btn ${viewMode === '2D' ? 'toggle-btn-active' : ''}`}
                 onClick={() => setViewMode('2D')}
               >
                 {t("result3d.toggle_2d")}
               </button>
-              <button 
+              <button
                 className={`toggle-btn ${viewMode === '3D' ? 'toggle-btn-active' : ''}`}
                 onClick={() => setViewMode('3D')}
               >
                 {t("result3d.toggle_3d")}
               </button>
+              <button
+                className={`toggle-btn ${viewMode === 'MAP' ? 'toggle-btn-active' : ''}`}
+                onClick={() => setViewMode('MAP')}
+              >
+                {t("result3d.toggle_map")}
+              </button>
             </div>
 
-            <div className="view-container">
-              {/* 3D House Illustration */}
-              <div className="house-3d">
-                <svg viewBox="0 0 400 300" className="house-svg">
-                  {/* Main house block - back */}
-                  <path 
-                    d="M120 200 L280 200 L280 280 L120 280 Z" 
-                    fill="#C5D5E5" 
-                    stroke="#7BA4C4" 
-                    strokeWidth="1"
+            {viewMode === 'MAP' ? (
+              <div className="view-container view-container-map">
+                <Suspense fallback={null}>
+                  <PlotMapView
+                    lat={landCoordinates?.lat ? Number(landCoordinates.lat) : null}
+                    lng={landCoordinates?.lng ? Number(landCoordinates.lng) : null}
+                    widthM={Number(landDimensions?.width)}
+                    heightM={Number(landDimensions?.height)}
                   />
-                  {/* Main house block - left side */}
-                  <path 
-                    d="M80 160 L120 200 L120 280 L80 240 Z" 
-                    fill="#A8BED4" 
-                    stroke="#7BA4C4" 
-                    strokeWidth="1"
-                  />
-                  {/* Main house block - top */}
-                  <path 
-                    d="M80 160 L200 100 L320 160 L280 200 L120 200 Z" 
-                    fill="#D4E1ED" 
-                    stroke="#7BA4C4" 
-                    strokeWidth="1.5"
-                  />
-                  {/* Main house right side */}
-                  <path 
-                    d="M200 100 L320 160 L320 240 L280 200 L280 280 L200 220 Z" 
-                    fill="#B8CCE0" 
-                    stroke="#7BA4C4" 
-                    strokeWidth="1"
-                  />
-                  {/* Entrance cutout */}
-                  <path 
-                    d="M140 240 L180 240 L180 280 L140 280 Z" 
-                    fill="#E8EEF4" 
-                    stroke="#7BA4C4" 
-                    strokeWidth="1"
-                  />
-                  {/* Entrance inner */}
-                  <path 
-                    d="M140 240 L160 230 L160 270 L140 280 Z" 
-                    fill="#9BB8D0" 
-                    stroke="#7BA4C4" 
-                    strokeWidth="1"
-                  />
-                </svg>
+                </Suspense>
               </div>
+            ) : (
+              <div className="view-container">
+                {/* 3D House Illustration */}
+                <div className="house-3d">
+                  <svg viewBox="0 0 400 300" className="house-svg">
+                    {/* Main house block - back */}
+                    <path
+                      d="M120 200 L280 200 L280 280 L120 280 Z"
+                      fill="#C5D5E5"
+                      stroke="#7BA4C4"
+                      strokeWidth="1"
+                    />
+                    {/* Main house block - left side */}
+                    <path
+                      d="M80 160 L120 200 L120 280 L80 240 Z"
+                      fill="#A8BED4"
+                      stroke="#7BA4C4"
+                      strokeWidth="1"
+                    />
+                    {/* Main house block - top */}
+                    <path
+                      d="M80 160 L200 100 L320 160 L280 200 L120 200 Z"
+                      fill="#D4E1ED"
+                      stroke="#7BA4C4"
+                      strokeWidth="1.5"
+                    />
+                    {/* Main house right side */}
+                    <path
+                      d="M200 100 L320 160 L320 240 L280 200 L280 280 L200 220 Z"
+                      fill="#B8CCE0"
+                      stroke="#7BA4C4"
+                      strokeWidth="1"
+                    />
+                    {/* Entrance cutout */}
+                    <path
+                      d="M140 240 L180 240 L180 280 L140 280 Z"
+                      fill="#E8EEF4"
+                      stroke="#7BA4C4"
+                      strokeWidth="1"
+                    />
+                    {/* Entrance inner */}
+                    <path
+                      d="M140 240 L160 230 L160 270 L140 280 Z"
+                      fill="#9BB8D0"
+                      stroke="#7BA4C4"
+                      strokeWidth="1"
+                    />
+                  </svg>
+                </div>
 
-              {/* Labels */}
-              <div className="house-label house-label-main">كافة الأدوية الرئيسية</div>
-              <div className="house-label house-label-entrance">إيجابي – مدخل مستقل</div>
+                {/* Labels */}
+                <div className="house-label house-label-main">كافة الأدوية الرئيسية</div>
+                <div className="house-label house-label-entrance">إيجابي – مدخل مستقل</div>
 
-              {/* Zoom Controls */}
-              <div className="zoom-controls">
-                <button className="zoom-btn">+</button>
-                <button className="zoom-btn">−</button>
+                {/* Zoom Controls */}
+                <div className="zoom-controls">
+                  <button className="zoom-btn">+</button>
+                  <button className="zoom-btn">−</button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Bottom Note */}
             <div className="view-footer">
