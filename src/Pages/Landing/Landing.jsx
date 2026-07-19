@@ -270,8 +270,8 @@ export default function Landing() {
               <p>{step.text}</p>
               {index < steps.length - 1 && (
                 <span className="landing-step-connector" aria-hidden="true">
-                  <svg className="landing-step-connector-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10 7l5 5-5 5"/>
+                  <svg className="landing-step-connector-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 7l-5 5 5 5"/>
                   </svg>
                 </span>
               )}
