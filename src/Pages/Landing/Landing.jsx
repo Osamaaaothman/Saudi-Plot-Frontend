@@ -242,7 +242,7 @@ export default function Landing() {
 
         <div className="landing-steps-grid">
           {steps.map((step, index) => (
-            <article className="landing-step-card landing-reveal" key={step.title}>
+            <article className="landing-step-card landing-reveal" key={`step-${index}`}>
               <div className="landing-step-top">
                 <span className="landing-step-number">{step.number}</span>
                 <span className="landing-step-icon" aria-hidden="true">
@@ -274,7 +274,7 @@ export default function Landing() {
               {index < steps.length - 1 && (
                 <span className="landing-step-connector" aria-hidden="true">
                   <svg className="landing-step-connector-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 7l-5 5 5 5"/>
+                    <path d={i18n.language === "ar" ? "M14 7l-5 5 5 5" : "M10 7l5 5-5 5"}/>
                   </svg>
                 </span>
               )}
@@ -346,7 +346,7 @@ export default function Landing() {
 
         <div className="landing-feature-grid">
           {features.map(([title, text], index) => (
-            <article className="landing-feature-card landing-reveal" key={title}>
+            <article className="landing-feature-card landing-reveal" key={`feature-${index}`}>
               <div className="landing-feature-top">
                 <span className="landing-feature-index">{numFmt(index + 1).padStart(2, i18n.language === "ar" ? "٠" : "0")}</span>
                 <div className="landing-feature-glyph" aria-hidden="true">

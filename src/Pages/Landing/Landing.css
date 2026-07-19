@@ -296,7 +296,8 @@
   .landing-hero-content { padding: 29px 22px 31px; }
   .landing-steps-grid, .landing-feature-grid { grid-template-columns: 1fr; }
   .landing-step-connector { top: auto; bottom: -14px; left: 50%; transform: translateX(-50%); }
-  .landing-step-connector-arrow { transform: rotate(-90deg); }
+  [dir="rtl"] .landing-step-connector-arrow { transform: rotate(-90deg); }
+  [dir="ltr"] .landing-step-connector-arrow { transform: rotate(90deg); }
   .landing-start-section, .landing-results { grid-template-columns: 1fr; }
   .landing-split-intro { grid-template-columns: 1fr; gap: 0; }
   .landing-feature-card + .landing-feature-card { border-right: 0; border-top: 1px solid var(--line); }
