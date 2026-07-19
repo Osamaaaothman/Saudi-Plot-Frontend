@@ -113,6 +113,7 @@
   padding: 11px 20px;
   box-shadow: 0 8px 18px rgba(41, 35, 27, .16);
 }
+.landing-nav-lang { margin: 0 6px; }
 .landing-menu-button { display: none; }
 
 .landing-hero-content {

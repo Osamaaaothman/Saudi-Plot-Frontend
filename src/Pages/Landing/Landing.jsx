@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import usePageTitle from "../../hooks/usePageTitle";
+import LanguageToggle from "../../Components/LanguageToggle/LanguageToggle";
 import "./Landing.css";
 
 const arabicNumber = new Intl.NumberFormat("ar-EG");
@@ -196,6 +197,7 @@ export default function Landing() {
             <a href="#how" onClick={() => setIsMenuOpen(false)}>{t("landing.nav_how")}</a>
             <a href="#features" onClick={() => setIsMenuOpen(false)}>{t("landing.nav_features")}</a>
             <a href="#results" onClick={() => setIsMenuOpen(false)}>{t("landing.nav_results")}</a>
+            <LanguageToggle className="landing-nav-lang" />
             <Link className="landing-nav-cta" to="/upload" onClick={() => setIsMenuOpen(false)}>
               {t("landing.nav_cta")}
             </Link>
