@@ -271,13 +271,7 @@ export default function Landing() {
               </div>
               <h3>{step.title}</h3>
               <p>{step.text}</p>
-              {index < steps.length - 1 && (
-                <span className="landing-step-connector" aria-hidden="true">
-                  <svg className="landing-step-connector-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <path d={i18n.language === "ar" ? "M14 7l-5 5 5 5" : "M10 7l5 5-5 5"}/>
-                  </svg>
-                </span>
-              )}
+
             </article>
           ))}
         </div>
