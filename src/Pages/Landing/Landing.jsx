@@ -70,22 +70,24 @@ function Counter({ target, className }) {
 }
 
 export default function Landing() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const numLocale = i18n.language === "ar" ? "ar-SA" : "en";
+  const numFmt = (n) => new Intl.NumberFormat(numLocale).format(n);
 
   const steps = [
     {
-      number: "١",
+      number: numFmt(1),
       title: t("landing.step1_title"),
       text: t("landing.step1_text"),
     },
     {
-      number: "٢",
+      number: numFmt(2),
       title: t("landing.step2_title"),
       text: t("landing.step2_text"),
     },
     {
-      number: "٣",
+      number: numFmt(3),
       title: t("landing.step3_title"),
       text: t("landing.step3_text"),
     },
@@ -346,7 +348,7 @@ export default function Landing() {
           {features.map(([title, text], index) => (
             <article className="landing-feature-card landing-reveal" key={title}>
               <div className="landing-feature-top">
-                <span className="landing-feature-index">٠{index + 1}</span>
+                <span className="landing-feature-index">{numFmt(index + 1).padStart(2, i18n.language === "ar" ? "٠" : "0")}</span>
                 <div className="landing-feature-glyph" aria-hidden="true">
                 {index === 0 ? (
                   <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
