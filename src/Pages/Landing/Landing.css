@@ -213,8 +213,8 @@
 .landing-step-icon { width: 52px; height: 52px; border-radius: 16px; background: #eee3cf; color: var(--olive-dark); display: grid; place-items: center; font-size: 25px; }
 .landing-step-card h3, .landing-feature-card h3 { font-size: 20px; margin: 35px 0 10px; }
 .landing-step-card p, .landing-feature-card p { color: var(--muted); line-height: 1.8; margin: 0; }
-.landing-step-connector { position: absolute; left: -22px; top: 50%; z-index: 2; width: 40px; height: 40px; display: grid; place-items: center; color: var(--olive); opacity: .5; }
-.landing-step-connector-arrow { width: 22px; height: 22px; }
+.landing-step-connector { position: absolute; left: -20px; top: 50%; z-index: 2; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: #f7efe3; border: 1px solid #d6c9b6; color: var(--clay); transform: translateY(-50%); box-shadow: 0 2px 8px rgba(62,49,34,.06); }
+.landing-step-connector-arrow { width: 18px; height: 18px; }
 
 .landing-start-section {
   background: var(--dark);
