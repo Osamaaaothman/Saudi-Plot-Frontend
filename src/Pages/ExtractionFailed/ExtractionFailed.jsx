@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Navbar from "../../Components/Navbar/Navbar";
@@ -6,6 +6,8 @@ import Button from "../../Components/Button/Button";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
 import "./ExtractionFailed.css";
+
+const LocationMapPicker = lazy(() => import("../../Components/LocationMapPicker/LocationMapPicker"));
 
 export default function ExtractionFailed() {
   const { t } = useTranslation();
@@ -26,6 +28,8 @@ export default function ExtractionFailed() {
   const [values, setValues] = useState({ width: "", height: "", street: "" });
   const [coords, setCoords] = useState({ lat: "", lng: "" });
   const [coordsTouched, setCoordsTouched] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
+  const [pickedFromMap, setPickedFromMap] = useState(false);
 
   const isComplete = FIELDS.every((field) => values[field.key].trim() !== "");
   const coordsComplete =
@@ -93,6 +97,20 @@ export default function ExtractionFailed() {
             {t("manual.coords_hint")}
           </p>
 
+          <button type="button" className="manual-form__map-btn" onClick={() => setMapOpen(true)}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+              <path
+                d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Z"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinejoin="round"
+              />
+              <circle cx="12" cy="9.5" r="2.4" stroke="currentColor" strokeWidth="1.6" />
+            </svg>
+            {t("map.pick_button")}
+          </button>
+          {pickedFromMap && <p className="manual-form__picked-hint">{t("map.picked_hint")}</p>}
+
           <label className="manual-form__field">
             <span className="manual-form__label">{t("manual.coords_lat")}</span>
             <input
@@ -104,7 +122,10 @@ export default function ExtractionFailed() {
               }`}
               placeholder={t("manual.coords_placeholder_lat")}
               value={coords.lat}
-              onChange={(e) => setCoords((c) => ({ ...c, lat: e.target.value }))}
+              onChange={(e) => {
+                setCoords((c) => ({ ...c, lat: e.target.value }));
+                setPickedFromMap(false);
+              }}
             />
           </label>
           <label className="manual-form__field">
@@ -118,7 +139,10 @@ export default function ExtractionFailed() {
               }`}
               placeholder={t("manual.coords_placeholder_lng")}
               value={coords.lng}
-              onChange={(e) => setCoords((c) => ({ ...c, lng: e.target.value }))}
+              onChange={(e) => {
+                setCoords((c) => ({ ...c, lng: e.target.value }));
+                setPickedFromMap(false);
+              }}
             />
           </label>
 
@@ -131,6 +155,21 @@ export default function ExtractionFailed() {
           </Button>
         </div>
       </main>
+
+      {mapOpen && (
+        <Suspense fallback={null}>
+          <LocationMapPicker
+            initialLat={coords.lat ? Number(coords.lat) : null}
+            initialLng={coords.lng ? Number(coords.lng) : null}
+            onConfirm={({ lat, lng }) => {
+              setCoords({ lat: String(lat), lng: String(lng) });
+              setPickedFromMap(true);
+              setMapOpen(false);
+            }}
+            onClose={() => setMapOpen(false)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

@@ -159,3 +159,31 @@
   color: #c0392b;
   text-align: right;
 }
+
+.manual-form__map-btn {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--dark);
+  color: #fff9ee;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+.manual-form__map-btn:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+.manual-form__picked-hint {
+  align-self: flex-end;
+  margin: -4px 0 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #53633c;
+}

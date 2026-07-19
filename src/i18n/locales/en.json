@@ -260,5 +260,20 @@
   "page_title.q5": "Family questions — Services",
   "page_title.q6": "Family questions — Spaces",
   "page_title.room_catalog": "Room catalog",
-  "page_title.result_3d": "Your 3D home plan"
+  "page_title.result_3d": "Your 3D home plan",
+  "map.pick_button": "Choose location on map ←",
+  "map.title": "Choose your land's location",
+  "map.close": "Close",
+  "map.search_placeholder": "Search for a city, district, or address...",
+  "map.use_my_location": "Use my current location",
+  "map.locating": "Locating...",
+  "map.geo_unsupported": "Your browser doesn't support location detection.",
+  "map.geo_denied": "Couldn't access your location — check that location access is allowed.",
+  "map.style_street": "Map",
+  "map.style_satellite": "Satellite",
+  "map.selected_coords": "Selected location: {{lat}}, {{lon}}",
+  "map.no_selection": "Click the map or search to choose your land's location",
+  "map.cancel": "Cancel",
+  "map.confirm": "Confirm location",
+  "map.picked_hint": "Location picked from the map ✓"
 }

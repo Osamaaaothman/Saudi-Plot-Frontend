@@ -260,5 +260,20 @@
   "page_title.q5": "أسئلة الأسرة — الخدمات",
   "page_title.q6": "أسئلة الأسرة — الفراغات",
   "page_title.room_catalog": "كتالوج الغرف",
-  "page_title.result_3d": "مخطط منزلك ثلاثي الأبعاد"
+  "page_title.result_3d": "مخطط منزلك ثلاثي الأبعاد",
+  "map.pick_button": "اختر الموقع من الخريطة ←",
+  "map.title": "اختر موقع أرضك",
+  "map.close": "إغلاق",
+  "map.search_placeholder": "ابحث عن مدينة أو حي أو عنوان...",
+  "map.use_my_location": "استخدم موقعي الحالي",
+  "map.locating": "جارٍ التحديد...",
+  "map.geo_unsupported": "متصفحك لا يدعم تحديد الموقع.",
+  "map.geo_denied": "تعذّر الوصول لموقعك — تأكد من السماح بالوصول للموقع.",
+  "map.style_street": "خريطة",
+  "map.style_satellite": "قمر صناعي",
+  "map.selected_coords": "الموقع المحدد: {{lat}}, {{lon}}",
+  "map.no_selection": "انقر على الخريطة أو ابحث لاختيار موقع أرضك",
+  "map.cancel": "إلغاء",
+  "map.confirm": "تأكيد الموقع",
+  "map.picked_hint": "تم اختيار الموقع من الخريطة ✓"
 }

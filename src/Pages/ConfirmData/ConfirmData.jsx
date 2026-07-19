@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Navbar from "../../Components/Navbar/Navbar";
@@ -6,6 +6,10 @@ import Button from "../../Components/Button/Button";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
 import "./ConfirmData.css";
+
+// MapLibre GL is a heavy dependency (~1MB) — only fetch it once someone
+// actually opens the map picker, instead of bundling it into every page load.
+const LocationMapPicker = lazy(() => import("../../Components/LocationMapPicker/LocationMapPicker"));
 
 const FALLBACK_BOUNDARIES = [
   { id: "area", label: "المساحة الإجمالية", value: "2,892.3 م²" },
@@ -72,6 +76,8 @@ export default function ConfirmData() {
     lng: initCoords ? String(initCoords.lng) : "",
   });
   const [coordsTouched, setCoordsTouched] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
+  const [pickedFromMap, setPickedFromMap] = useState(false);
 
   const dimensionsComplete =
     dimensions.width.trim() !== "" &&
@@ -180,6 +186,19 @@ export default function ConfirmData() {
                 <p className="confirm-dims__hint">
                   {t("confirm.coords_hint")}
                 </p>
+                <button type="button" className="confirm-dims__map-btn" onClick={() => setMapOpen(true)}>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+                    <path
+                      d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Z"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinejoin="round"
+                    />
+                    <circle cx="12" cy="9.5" r="2.4" stroke="currentColor" strokeWidth="1.6" />
+                  </svg>
+                  {t("map.pick_button")}
+                </button>
+                {pickedFromMap && <p className="confirm-dims__picked-hint">{t("map.picked_hint")}</p>}
                 <div className="confirm-dims__grid">
                   <label className="confirm-dims__field">
                     <span className="confirm-dims__label">{t("confirm.coords_lat")}</span>
@@ -192,7 +211,10 @@ export default function ConfirmData() {
                       }`}
                       placeholder={t("confirm.coords_placeholder_lat")}
                       value={coords.lat}
-                      onChange={(e) => setCoords((c) => ({ ...c, lat: e.target.value }))}
+                      onChange={(e) => {
+                        setCoords((c) => ({ ...c, lat: e.target.value }));
+                        setPickedFromMap(false);
+                      }}
                     />
                   </label>
                   <label className="confirm-dims__field">
@@ -206,7 +228,10 @@ export default function ConfirmData() {
                       }`}
                       placeholder={t("confirm.coords_placeholder_lng")}
                       value={coords.lng}
-                      onChange={(e) => setCoords((c) => ({ ...c, lng: e.target.value }))}
+                      onChange={(e) => {
+                        setCoords((c) => ({ ...c, lng: e.target.value }));
+                        setPickedFromMap(false);
+                      }}
                     />
                   </label>
                 </div>
@@ -350,6 +375,21 @@ export default function ConfirmData() {
           {t("confirm.btn")}
         </Button>
       </main>
+
+      {mapOpen && (
+        <Suspense fallback={null}>
+          <LocationMapPicker
+            initialLat={coords.lat ? Number(coords.lat) : null}
+            initialLng={coords.lng ? Number(coords.lng) : null}
+            onConfirm={({ lat, lng }) => {
+              setCoords({ lat: String(lat), lng: String(lng) });
+              setPickedFromMap(true);
+              setMapOpen(false);
+            }}
+            onClose={() => setMapOpen(false)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
