@@ -1,25 +1,26 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
 import "./ExtractionFailed.css";
 
-// width & height are the mandatory plot dimensions; street is extra context.
-const FIELDS = [
-  { key: "width", label: "عرض الأرض (متر)", placeholder: "مثال: 70", required: true },
-  { key: "height", label: "طول الأرض (متر)", placeholder: "مثال: 42", required: true },
-  { key: "street", label: "عرض الشارع الرئيسي (متر)", placeholder: "مثال: 20", required: true },
-];
-
 export default function ExtractionFailed() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const FIELDS = [
+    { key: "width", label: t("manual.width"), placeholder: t("manual.placeholder_width"), required: true },
+    { key: "height", label: t("manual.height"), placeholder: t("manual.placeholder_height"), required: true },
+    { key: "street", label: t("manual.street"), placeholder: t("manual.placeholder_street"), required: true },
+  ];
   // The error banner only shows when we actually failed to read the deed
   // (backend/OCR error). Choosing "enter manually" from Upload shows just the form.
   const extractionFailed = Boolean(location.state?.extractionFailed);
-  const errorMessage = location.state?.errorMessage || "لم نستطع قراءة بيانات الصك";
+  const errorMessage = location.state?.errorMessage || t("extraction_failed.title");
   const setLandDimensions = useFormStore((state) => state.setLandDimensions);
   const setLandCoordinates = useFormStore((state) => state.setLandCoordinates);
   const [values, setValues] = useState({ width: "", height: "", street: "" });
@@ -56,22 +57,22 @@ export default function ExtractionFailed() {
             <div className="error-banner">
               <p className="error-banner__mark">!</p>
               <div className="error-banner__text">
-                <p className="error-banner__title">لم نستطع قراءة بيانات الصك</p>
+                <p className="error-banner__title">{t("extraction_failed.title")}</p>
                 <p className="error-banner__subtitle">{errorMessage}</p>
               </div>
             </div>
 
             <Button variant="secondary" onClick={() => navigate("/upload")}>
-              إعادة المحاولة بصورة أوضح
+              {t("extraction_failed.retry")}
             </Button>
 
-            <p className="extraction-failed__divider">— أو —</p>
+            <p className="extraction-failed__divider">{t("extraction_failed.divider")}</p>
           </>
         )}
 
         <div className="manual-form">
-          <p className="manual-form__title">أدخل بيانات أرضك يدويًا</p>
-          <p className="manual-form__subtitle">املأ المعلومات الأساسية من صكّك وإحداثيات الأرض إن أمكن.</p>
+          <p className="manual-form__title">{t("manual.title")}</p>
+          <p className="manual-form__subtitle">{t("manual.subtitle")}</p>
 
           {FIELDS.map((field) => (
             <label className="manual-form__field" key={field.key}>
@@ -89,11 +90,11 @@ export default function ExtractionFailed() {
           <div className="manual-form__divider" />
 
           <p className="manual-form__hint">
-            إحداثيات الأرض — أدخلها إن أمكن لإظهار موقع أرضك على الخريطة في النتيجة النهائية.
+            {t("manual.coords_hint")}
           </p>
 
           <label className="manual-form__field">
-            <span className="manual-form__label">خط العرض (Latitude)</span>
+            <span className="manual-form__label">{t("manual.coords_lat")}</span>
             <input
               type="number"
               step="any"
@@ -101,13 +102,13 @@ export default function ExtractionFailed() {
               className={`manual-form__input${
                 coordsTouched && coords.lat.trim() === "" ? " manual-form__input--error" : ""
               }`}
-              placeholder="مثال: 24.7136"
+              placeholder={t("manual.coords_placeholder_lat")}
               value={coords.lat}
               onChange={(e) => setCoords((c) => ({ ...c, lat: e.target.value }))}
             />
           </label>
           <label className="manual-form__field">
-            <span className="manual-form__label">خط الطول (Longitude)</span>
+            <span className="manual-form__label">{t("manual.coords_lng")}</span>
             <input
               type="number"
               step="any"
@@ -115,18 +116,18 @@ export default function ExtractionFailed() {
               className={`manual-form__input${
                 coordsTouched && coords.lng.trim() === "" ? " manual-form__input--error" : ""
               }`}
-              placeholder="مثال: 46.6753"
+              placeholder={t("manual.coords_placeholder_lng")}
               value={coords.lng}
               onChange={(e) => setCoords((c) => ({ ...c, lng: e.target.value }))}
             />
           </label>
 
           {coordsTouched && !coordsComplete && (
-            <p className="manual-form__error">الرجاء إدخال خط العرض وخط الطول (أرقام) قبل المتابعة.</p>
+            <p className="manual-form__error">{t("manual.coords_error")}</p>
           )}
 
           <Button fullWidth disabled={!isComplete || !coordsComplete} onClick={handleContinue}>
-            متابعة إلى أسئلة الأسرة
+            {t("manual.btn")}
           </Button>
         </div>
       </main>

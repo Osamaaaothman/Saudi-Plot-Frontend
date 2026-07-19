@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -46,6 +47,7 @@ function InfoRow({ label, value }) {
 }
 
 export default function ConfirmData() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const extractedDeedRaw = useFormStore((state) => state.extractedDeedRaw);
   const setLandDimensions = useFormStore((state) => state.setLandDimensions);
@@ -117,10 +119,10 @@ export default function ConfirmData() {
     <div className="page">
       <Navbar />
       <main className="confirm-data">
-        <span className="confirm-data__badge">قرأنا صكّك بنجاح ✓</span>
-        <h1 className="confirm-data__title">تأكّد من بيانات أرضك</h1>
+        <span className="confirm-data__badge">{t("confirm.badge")}</span>
+        <h1 className="confirm-data__title">{t("confirm.title")}</h1>
         <p className="confirm-data__subtitle">
-          هذه البيانات كما وردت في الصك — راجعها وعدّل ما تحتاج قبل المتابعة
+          {t("confirm.subtitle")}
         </p>
 
         {/* ── Boundaries (editable) ── */}
@@ -145,7 +147,7 @@ export default function ConfirmData() {
                 <p className="confirm-row__label">{field.label}</p>
               </div>
               <button type="button" className="confirm-row__edit" onClick={() => setEditingId(field.id)}>
-                تعديل
+                {t("confirm.edit")}
               </button>
             </div>
           ))}
@@ -153,34 +155,34 @@ export default function ConfirmData() {
 
         {/* ── Coordinates from QR codes (required) ── */}
         <section className="confirm-section confirm-section--map">
-          <h2 className="confirm-section__title">إحداثيات الأرض (مطلوب)</h2>
+          <h2 className="confirm-section__title">{t("confirm.coords_title")}</h2>
           <div className="confirm-section__body">
             {initCoords ? (
               <>
                 <div className="coords-row">
                   <div className="coords-row__pair">
                     <span className="coords-row__value">{initCoords.lat.toFixed(6)}</span>
-                    <span className="coords-row__label">خط العرض</span>
+                    <span className="coords-row__label">{t("confirm.coords_lat")}</span>
                   </div>
                   <div className="coords-row__pair">
                     <span className="coords-row__value">{initCoords.lng.toFixed(6)}</span>
-                    <span className="coords-row__label">خط الطول</span>
+                    <span className="coords-row__label">{t("confirm.coords_lng")}</span>
                   </div>
                 </div>
                 {mapsUrl && (
                   <a className="coords-row__link" href={mapsUrl} target="_blank" rel="noreferrer">
-                    فتح الموقع في خرائط Google ←
+                    {t("confirm.coords_map")}
                   </a>
                 )}
               </>
             ) : (
               <>
                 <p className="confirm-dims__hint">
-                  لم نتمكن من قراءة إحداثيات الأرض من رمز QR — أدخل إحداثيات موقع أرضك يدويًا إن أمكن.
+                  {t("confirm.coords_hint")}
                 </p>
                 <div className="confirm-dims__grid">
                   <label className="confirm-dims__field">
-                    <span className="confirm-dims__label">خط العرض (Latitude)</span>
+                    <span className="confirm-dims__label">{t("confirm.coords_lat")}</span>
                     <input
                       type="number"
                       step="any"
@@ -188,13 +190,13 @@ export default function ConfirmData() {
                       className={`confirm-dims__input${
                         coordsTouched && coords.lat.trim() === "" ? " confirm-dims__input--error" : ""
                       }`}
-                      placeholder="مثال: 24.7136"
+                      placeholder={t("confirm.coords_placeholder_lat")}
                       value={coords.lat}
                       onChange={(e) => setCoords((c) => ({ ...c, lat: e.target.value }))}
                     />
                   </label>
                   <label className="confirm-dims__field">
-                    <span className="confirm-dims__label">خط الطول (Longitude)</span>
+                    <span className="confirm-dims__label">{t("confirm.coords_lng")}</span>
                     <input
                       type="number"
                       step="any"
@@ -202,14 +204,14 @@ export default function ConfirmData() {
                       className={`confirm-dims__input${
                         coordsTouched && coords.lng.trim() === "" ? " confirm-dims__input--error" : ""
                       }`}
-                      placeholder="مثال: 46.6753"
+                      placeholder={t("confirm.coords_placeholder_lng")}
                       value={coords.lng}
                       onChange={(e) => setCoords((c) => ({ ...c, lng: e.target.value }))}
                     />
                   </label>
                 </div>
                 {coordsTouched && !coordsComplete && (
-                  <p className="confirm-dims__error">الرجاء إدخال خط العرض وخط الطول (أرقام) قبل المتابعة.</p>
+                  <p className="confirm-dims__error">{t("confirm.coords_error")}</p>
                 )}
               </>
             )}
@@ -219,7 +221,7 @@ export default function ConfirmData() {
         {/* ── Document info ── */}
         {doc && (
           <section className="confirm-section">
-            <h2 className="confirm-section__title">بيانات الصك</h2>
+            <h2 className="confirm-section__title">{t("confirm.doc_title")}</h2>
             <div className="confirm-section__body info-grid">
               <InfoRow label="رقم الصك" value={doc.document_number} />
               <InfoRow label="نوع الصك" value={doc.document_type} />
@@ -236,7 +238,7 @@ export default function ConfirmData() {
         {/* ── Property info ── */}
         {property && (
           <section className="confirm-section">
-            <h2 className="confirm-section__title">بيانات العقار</h2>
+            <h2 className="confirm-section__title">{t("confirm.property_title")}</h2>
             <div className="confirm-section__body info-grid">
               <InfoRow label="رقم العقار" value={property.property_id} />
               <InfoRow label="نوع العقار" value={property.property_type} />
@@ -253,7 +255,7 @@ export default function ConfirmData() {
         {/* ── Owners ── */}
         {owners.length > 0 && (
           <section className="confirm-section">
-            <h2 className="confirm-section__title">الملاك</h2>
+            <h2 className="confirm-section__title">{t("confirm.owners_title")}</h2>
             <div className="confirm-section__body owners-list">
               {owners.map((owner, idx) => (
                 <div className="owner-card" key={idx}>
@@ -273,11 +275,11 @@ export default function ConfirmData() {
         {/* ── QR codes + verification ── */}
         {(qrCodes.length > 0 || verificationUrl) && (
           <section className="confirm-section">
-            <h2 className="confirm-section__title">رموز QR والتحقق</h2>
+            <h2 className="confirm-section__title">{t("confirm.qr_title")}</h2>
             <div className="confirm-section__body">
               {verificationUrl && (
                 <a className="qr-link" href={verificationUrl} target="_blank" rel="noreferrer">
-                  رابط التحقق من الصك ←
+                  {t("confirm.verify_link")}
                 </a>
               )}
               {qrCodes.map((qr, idx) => (
@@ -290,7 +292,7 @@ export default function ConfirmData() {
         {/* ── Extra information from Gemini ── */}
         {extraEntries.length > 0 && (
           <section className="confirm-section">
-            <h2 className="confirm-section__title">معلومات إضافية</h2>
+            <h2 className="confirm-section__title">{t("confirm.extra_title")}</h2>
             <div className="confirm-section__body info-grid">
               {extraEntries.map(([key, value]) => (
                 <InfoRow key={key} label={key} value={String(value)} />
@@ -301,13 +303,13 @@ export default function ConfirmData() {
 
         {/* ── Plot dimensions (required) ── */}
         <section className="confirm-section confirm-section--dims">
-          <h2 className="confirm-section__title">أبعاد الأرض (مطلوب)</h2>
+          <h2 className="confirm-section__title">{t("confirm.dims_title")}</h2>
           <p className="confirm-dims__hint">
-            لم نتمكن دائمًا من قراءة أبعاد الأرض من الصك — تأكّد من عرض وطول أرضك قبل المتابعة.
+            {t("confirm.dims_hint")}
           </p>
           <div className="confirm-dims__grid">
             <label className="confirm-dims__field">
-              <span className="confirm-dims__label">عرض الأرض (متر)</span>
+              <span className="confirm-dims__label">{t("confirm.dims_width")}</span>
               <input
                 type="number"
                 min="0"
@@ -315,13 +317,13 @@ export default function ConfirmData() {
                 className={`confirm-dims__input${
                   dimTouched && dimensions.width.trim() === "" ? " confirm-dims__input--error" : ""
                 }`}
-                placeholder="مثال: 70"
+                placeholder={t("confirm.dims_placeholder_width")}
                 value={dimensions.width}
                 onChange={(e) => setDimensions((d) => ({ ...d, width: e.target.value }))}
               />
             </label>
             <label className="confirm-dims__field">
-              <span className="confirm-dims__label">طول الأرض (متر)</span>
+              <span className="confirm-dims__label">{t("confirm.dims_height")}</span>
               <input
                 type="number"
                 min="0"
@@ -329,23 +331,23 @@ export default function ConfirmData() {
                 className={`confirm-dims__input${
                   dimTouched && dimensions.height.trim() === "" ? " confirm-dims__input--error" : ""
                 }`}
-                placeholder="مثال: 42"
+                placeholder={t("confirm.dims_placeholder_height")}
                 value={dimensions.height}
                 onChange={(e) => setDimensions((d) => ({ ...d, height: e.target.value }))}
               />
             </label>
           </div>
           {dimTouched && !dimensionsComplete && (
-            <p className="confirm-dims__error">الرجاء إدخال عرض وطول الأرض (أرقام أكبر من صفر) قبل المتابعة.</p>
+            <p className="confirm-dims__error">{t("confirm.dims_error")}</p>
           )}
         </section>
 
         <p className="confirm-data__source">
-          {docNumber ? `المصدر: صك إلكتروني رقم ${docNumber} — وزارة العدل` : "المصدر: وزارة العدل"}
+          {docNumber ? t("confirm.source", { num: docNumber }) : t("confirm.source_fallback")}
         </p>
 
         <Button fullWidth disabled={!dimensionsComplete || !coordsComplete} onClick={handleContinue}>
-          البيانات صحيحة — متابعة إلى أسئلة الأسرة
+          {t("confirm.btn")}
         </Button>
       </main>
     </div>

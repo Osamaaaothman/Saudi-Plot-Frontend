@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "../../Components/Navbar/Navbar";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
 import "./Generating.css";
-
-const STEPS = [
-  "قرأنا بيانات أرضك من الصك",
-  "جرّبنا 38 توزيعًا مختلفًا للغرف",
-  "نقيّم الآن الخصوصية والإضاءة والتهوية...",
-  "نختار الأفضل ونجهّز المخطط",
-];
 
 const MIN_STEP_DELAY = 1000;
 const MAX_STEP_DELAY = 5000;
@@ -21,9 +15,17 @@ function randomStepDelay() {
 }
 
 export default function Generating() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const [phase, setPhase] = useState("progress");
+
+  const STEPS = [
+    t("generating.step1"),
+    t("generating.step2"),
+    t("generating.step3"),
+    t("generating.step4"),
+  ];
 
   useEffect(() => {
     if (activeIndex >= STEPS.length) {
@@ -56,8 +58,8 @@ export default function Generating() {
               <path className="success-check__mark" fill="none" d="M24 41 L35 52 L57 28" />
             </svg>
           </div>
-          <h1 className="generating__title generating__title--success">اكتمل تصميم مخططك!</h1>
-          <p className="generating__hint">جارٍ نقلك إلى النتيجة...</p>
+          <h1 className="generating__title generating__title--success">{t("generating.success_title")}</h1>
+          <p className="generating__hint">{t("generating.success_hint")}</p>
         </main>
       </div>
     );
@@ -68,7 +70,7 @@ export default function Generating() {
       <Navbar />
       <main className="generating">
         <div className="generating__spinner" aria-hidden="true" />
-        <h1 className="generating__title">نصمّم مخططك الآن...</h1>
+        <h1 className="generating__title">{t("generating.title")}</h1>
 
         <div className="generating__card">
           {STEPS.map((step, index) => (
@@ -98,7 +100,7 @@ export default function Generating() {
           ))}
         </div>
 
-        <p className="generating__hint">عادةً يستغرق هذا أقل من دقيقة</p>
+        <p className="generating__hint">{t("generating.hint")}</p>
       </main>
     </div>
   );

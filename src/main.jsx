@@ -8,6 +8,7 @@ import '@fontsource/ibm-plex-sans-arabic/600.css'
 import '@fontsource/noto-kufi-arabic/500.css'
 import '@fontsource/noto-kufi-arabic/600.css'
 import '@fontsource/noto-kufi-arabic/700.css'
+import './i18n/i18n'
 import './index.css'
 import App from './App.jsx'
 

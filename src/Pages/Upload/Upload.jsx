@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
@@ -7,12 +8,6 @@ import { useFormStore } from "../../Store/useFormStore";
 import { analyzeDeed, validateFile } from "../../utils/geminiService";
 import { scanQRCodesFromImage } from "../../utils/qrScanner";
 import "./Upload.css";
-
-const STEPS = [
-  { id: "reading", label: "قراءة الملف" },
-  { id: "sending", label: "التواصل مع الذكاء الاصطناعي" },
-  { id: "parsing", label: "استخراج بيانات الصك" },
-];
 
 const STEP_ORDER = ["reading", "sending", "parsing"];
 const QR_SCAN_TIMEOUT_MS = 8000;
@@ -36,6 +31,7 @@ function getStepState(stepId, currentStatus) {
 }
 
 export default function Upload() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const fileInputRef = useRef(null);
@@ -43,6 +39,12 @@ export default function Upload() {
   const [analyzeStatus, setAnalyzeStatus] = useState("idle");
   const [fileError, setFileError] = useState(null);
   const setExtractedDeedRaw = useFormStore((state) => state.setExtractedDeedRaw);
+
+  const STEPS = [
+    { id: "reading", label: t("upload.step_reading") },
+    { id: "sending", label: t("upload.step_sending") },
+    { id: "parsing", label: t("upload.step_parsing") },
+  ];
 
   useEffect(() => {
     const file = location.state?.file;
@@ -102,7 +104,7 @@ export default function Upload() {
       navigate("/manual-entry", {
         state: {
           extractionFailed: true,
-          errorMessage: err.message || "لم نستطع قراءة بيانات الصك",
+          errorMessage: err.message || t("extraction_failed.title"),
         },
       });
     }
@@ -120,10 +122,10 @@ export default function Upload() {
     <div className="page upload-page">
       <Navbar />
       <main className="upload">
-        <p className="upload__step">الخطوة 1 من 3 — الصك</p>
-        <h1 className="upload__title">صمّم فكرة فيلتك من صكّك</h1>
+        <p className="upload__step">{t("upload.step")}</p>
+        <h1 className="upload__title">{t("upload.title")}</h1>
         <p className="upload__subtitle">
-          ارفع صورة الصك وسنقرأ بيانات أرضك تلقائيًا — بلا أي إدخال يدوي
+          {t("upload.subtitle")}
         </p>
 
         <div
@@ -154,7 +156,7 @@ export default function Upload() {
               />
             </svg>
           </div>
-          <p className="upload-card__label">اسحب ملف الصك وأفلته هنا</p>
+          <p className="upload-card__label">{t("upload.drop_label")}</p>
           <Button
             onClick={(e) => {
               e.stopPropagation();
@@ -162,7 +164,7 @@ export default function Upload() {
             }}
             disabled={isAnalyzing}
           >
-            اختر ملفًا من جهازك
+            {t("upload.choose_file")}
           </Button>
           <input
             ref={fileInputRef}
@@ -171,7 +173,7 @@ export default function Upload() {
             hidden
             onChange={(event) => handleFile(event.target.files?.[0])}
           />
-          <p className="upload-card__hint">PDF أو صورة — وثيقة البورصة العقارية أو الصك التقليدي</p>
+          <p className="upload-card__hint">{t("upload.hint")}</p>
         </div>
 
         {fileError && <p className="upload__file-error">{fileError}</p>}
@@ -204,7 +206,7 @@ export default function Upload() {
           onClick={() => navigate("/manual-entry")}
           disabled={isAnalyzing}
         >
-          أو أدخل بيانات الأرض يدويًا ←
+          {t("upload.manual_link")} ←
         </button>
 
         <p className="upload__privacy">
@@ -224,13 +226,13 @@ export default function Upload() {
               strokeLinecap="round"
             />
           </svg>
-          بيانات صكّك تُعالج بأمان ولا تُشارك مع أي جهة خارجية
+          {t("upload.privacy")}
         </p>
       </main>
 
       {/* ── Analyzing overlay ── */}
       {isAnalyzing && (
-        <div className="upload-analyzing" role="dialog" aria-modal="true" aria-label="جارٍ تحليل الصك">
+        <div className="upload-analyzing" role="dialog" aria-modal="true" aria-label={t("upload.analyzing.title")}>
           <div className="upload-analyzing__card">
             {analyzeStatus === "done" ? (
               <div className="upload-analyzing__success">
@@ -245,8 +247,8 @@ export default function Upload() {
                     />
                   </svg>
                 </div>
-                <p className="upload-analyzing__success-title">اكتمل التحليل!</p>
-                <p className="upload-analyzing__success-sub">جارٍ الانتقال للتحقق من البيانات...</p>
+                <p className="upload-analyzing__success-title">{t("upload.analyzing.success")}</p>
+                <p className="upload-analyzing__success-sub">{t("upload.analyzing.redirect")}</p>
               </div>
             ) : (
               <>
@@ -271,8 +273,8 @@ export default function Upload() {
                       <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                     </svg>
                   </div>
-                  <h3 className="upload-analyzing__title">جارٍ تحليل صكّك</h3>
-                  <p className="upload-analyzing__subtitle">يرجى الانتظار قليلًا...</p>
+                  <h3 className="upload-analyzing__title">{t("upload.analyzing.title")}</h3>
+                  <p className="upload-analyzing__subtitle">{t("upload.analyzing.subtitle")}</p>
                 </div>
 
                 <div className="upload-analyzing__steps">

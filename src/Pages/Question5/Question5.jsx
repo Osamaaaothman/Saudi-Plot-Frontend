@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import QuestionLayout from "../../Components/QuestionLayout/QuestionLayout";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
@@ -7,6 +8,7 @@ const ROW_1 = ["غسيل وكيّ", "غرفة عاملة منزلية بحمّا
 const ROW_2 = ["لا شيء", "مدخل خدمة مستقل", "مستودع"];
 
 export default function Question5() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const selected = useFormStore((state) => state.services);
   const setServices = useFormStore((state) => state.setServices);
@@ -19,8 +21,18 @@ export default function Question5() {
     );
   }
 
+  const optionLabel = {
+    "غسيل وكيّ": t("q5.laundry"),
+    "غرفة عاملة منزلية بحمّام": t("q5.maid"),
+    "غرفة سائق بحمّام": t("q5.driver"),
+    "لا شيء": t("q5.none"),
+    "مدخل خدمة مستقل": t("q5.service_entrance"),
+    "مستودع": t("q5.storage"),
+  };
+
   function renderChip(option) {
     const isSelected = selected.includes(option);
+    const label = optionLabel[option] || option;
     return (
       <button
         key={option}
@@ -28,7 +40,7 @@ export default function Question5() {
         className={`chip ${isSelected ? "chip--selected" : ""}`}
         onClick={() => toggle(option)}
       >
-        {isSelected ? `${option} ✓` : option}
+        {isSelected ? `${label} ✓` : label}
       </button>
     );
   }
@@ -36,9 +48,9 @@ export default function Question5() {
   return (
     <QuestionLayout
       stepIndex={5}
-      stepLabel="السؤال 5 من 6"
-      title="هل تحتاج غرف خدمات؟"
-      subtitle="اختر كل ما ينطبق — غرف السائق والعاملة تكون بمداخل مستقلة"
+      stepLabel={t("q5.step")}
+      title={t("q5.title")}
+      subtitle={t("q5.subtitle")}
       onBack={() => navigate(-1)}
       onNext={() => navigate("/questions/6")}
     >

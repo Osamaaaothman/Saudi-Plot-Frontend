@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import QuestionLayout from "../../Components/QuestionLayout/QuestionLayout";
 import usePageTitle from "../../hooks/usePageTitle";
 import "./Question6.css";
@@ -16,17 +17,18 @@ const TAGS = [
 ];
 
 export default function Question6() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
     <QuestionLayout
       stepIndex={6}
-      stepLabel="الخطوة الأخيرة"
-      title="جهّزنا قائمة فراغات بيتك"
-      subtitle="من إجاباتك — عدّل بالعدّادات ما تشاء ثم ابدأ التصميم"
+      stepLabel={t("q6.step")}
+      title={t("q6.title")}
+      subtitle={t("q6.subtitle")}
       onBack={() => navigate(-1)}
       onNext={() => navigate("/generating")}
-      nextLabel="ابدأ تصميم مخططي ←"
+      nextLabel={t("q6.next")}
       singleAction
     >
       <div className="space-tags">
@@ -40,7 +42,7 @@ export default function Question6() {
       <button type="button" className="space-edit-btn" onClick={() => navigate("/room-catalog")}>
         {/* DOM order (text, icon) so RTL flex places the text at the visual
             right and the pencil icon at the visual left, matching the design. */}
-        تعديل
+        {t("q6.edit")}
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
           <path
             d="M4 20l1.1-4.4L16.5 4.2a1.5 1.5 0 0 1 2.1 0l1.2 1.2a1.5 1.5 0 0 1 0 2.1L8.4 18.9 4 20Z"
@@ -52,7 +54,7 @@ export default function Question6() {
         </svg>
       </button>
 
-      <p className="space-summary">الإجمالي 242م² — يناسب أرضك (2,892م²) بارتياح ✓</p>
+      <p className="space-summary">{t("q6.summary")}</p>
     </QuestionLayout>
   );
 }

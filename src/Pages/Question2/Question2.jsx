@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import QuestionLayout from "../../Components/QuestionLayout/QuestionLayout";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
 
 export default function Question2() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const hasElderly = useFormStore((state) => state.hasElderly);
   const setHasElderly = useFormStore((state) => state.setHasElderly);
@@ -11,9 +13,9 @@ export default function Question2() {
   return (
     <QuestionLayout
       stepIndex={2}
-      stepLabel="السؤال 2 من 6"
-      title="هل في أسرتك كبار سن أو من يحتاج سهولة حركة؟"
-      subtitle="سنجعل لهم غرفة نوم بحمّام ميسّر في مكان مريح"
+      stepLabel={t("q2.step")}
+      title={t("q2.title")}
+      subtitle={t("q2.subtitle")}
       onBack={() => navigate(-1)}
       onNext={() => navigate("/questions/3")}
     >
@@ -23,14 +25,14 @@ export default function Question2() {
           className={`chip ${hasElderly ? "chip--selected" : ""}`}
           onClick={() => setHasElderly(true)}
         >
-          نعم
+          {t("q2.yes")}
         </button>
         <button
           type="button"
           className={`chip ${!hasElderly ? "chip--selected" : ""}`}
           onClick={() => setHasElderly(false)}
         >
-          لا
+          {t("q2.no")}
         </button>
       </div>
     </QuestionLayout>

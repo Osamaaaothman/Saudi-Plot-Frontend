@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import usePageTitle from '../../hooks/usePageTitle';
 import './Result3D.css';
 
 const Result3D = () => {
+  const { t } = useTranslation();
   const [viewMode, setViewMode] = useState('3D');
 
   return (
@@ -11,16 +13,16 @@ const Result3D = () => {
 
         {/* Header */}
         <div className="house-plan-header">
-          <h2 className="house-plan-title">مخططك جاهز</h2>
+          <h2 className="house-plan-title">{t("result3d.title")}</h2>
           <p className="house-plan-subtitle">
-            بناءً على أرضك وإجاباتك – جربنا 18 ترتيباً وعثرنا الأمثل لك
+            {t("result3d.subtitle")}
           </p>
         </div>
 
         {/* Green Banner */}
         <div className="house-plan-banner">
           <span className="banner-icon">✓</span>
-          <span>خصوصية ممتازة – إيجابي مدخل مستقل وغرف النوم بعيدة عن منطقة الضيوف</span>
+          <span>{t("result3d.banner")}</span>
         </div>
 
         {/* Main Layout */}
@@ -34,13 +36,13 @@ const Result3D = () => {
                 className={`toggle-btn ${viewMode === '2D' ? 'toggle-btn-active' : ''}`}
                 onClick={() => setViewMode('2D')}
               >
-                مخطط 2D
+                {t("result3d.toggle_2d")}
               </button>
               <button 
                 className={`toggle-btn ${viewMode === '3D' ? 'toggle-btn-active' : ''}`}
                 onClick={() => setViewMode('3D')}
               >
-                مخطط 3D
+                {t("result3d.toggle_3d")}
               </button>
             </div>
 
@@ -106,7 +108,7 @@ const Result3D = () => {
 
             {/* Bottom Note */}
             <div className="view-footer">
-              <span>مجسم أولي – أولويات التصميمية بعد التصميم</span>
+              <span>{t("result3d.footer")}</span>
             </div>
           </div>
 
@@ -115,27 +117,27 @@ const Result3D = () => {
 
             {/* Summary Card */}
             <div className="summary-card">
-              <h3 className="summary-title">ملخص أرضك</h3>
+              <h3 className="summary-title">{t("result3d.summary_title")}</h3>
 
               <div className="summary-list">
                 <div className="summary-item">
-                  <span className="summary-label">إجمالي</span>
+                  <span className="summary-label">{t("result3d.summary_total")}</span>
                   <span className="summary-value">2,892 م²</span>
                 </div>
                 <div className="summary-item">
-                  <span className="summary-label">الشوارع</span>
+                  <span className="summary-label">{t("result3d.summary_streets")}</span>
                   <span className="summary-value">3 جهات – غربي شمالي شرقي</span>
                 </div>
                 <div className="summary-item">
-                  <span className="summary-label">الأبعاد</span>
+                  <span className="summary-label">{t("result3d.summary_dims")}</span>
                   <span className="summary-value">4 نوم – 3 دور – مساحة</span>
                 </div>
                 <div className="summary-item">
-                  <span className="summary-label">المطبخ</span>
+                  <span className="summary-label">{t("result3d.summary_kitchen")}</span>
                   <span className="summary-value">مطبخ مفتوح مستقل</span>
                 </div>
                 <div className="summary-item">
-                  <span className="summary-label">التصميم</span>
+                  <span className="summary-label">{t("result3d.summary_design")}</span>
                   <span className="summary-value">دور أرضي</span>
                 </div>
               </div>
@@ -143,16 +145,16 @@ const Result3D = () => {
 
             {/* Action Buttons */}
             <button className="action-btn action-btn-primary">
-              تحميل المخطط PDF
+              {t("result3d.btn_pdf")}
             </button>
 
             <button className="action-btn action-btn-outline">
-              مشاركة مع مهندس
+              {t("result3d.btn_share")}
             </button>
 
             {/* File Formats */}
             <div className="file-formats">
-              <p className="file-formats-title">ملفات يدوية – مطبوعة للتصيل</p>
+              <p className="file-formats-title">{t("result3d.files_title")}</p>
               <div className="file-formats-buttons">
                 <button className="format-btn">DWG</button>
                 <button className="format-btn">DXF</button>
@@ -162,7 +164,7 @@ const Result3D = () => {
 
             {/* Price */}
             <div className="price-section">
-              <p className="price-label">سعر التصميم</p>
+              <p className="price-label">{t("result3d.price_label")}</p>
               <p className="price-value">18,000 ر.س</p>
             </div>
 
@@ -174,7 +176,7 @@ const Result3D = () => {
 
             {/* Footer Note */}
             <p className="footer-note">
-              تصميم أولي – أولويات التصميمية بعد التصميم
+              {t("result3d.footer_note")}
             </p>
           </div>
         </div>

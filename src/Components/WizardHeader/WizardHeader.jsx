@@ -1,7 +1,11 @@
+import { useTranslation } from "react-i18next";
 import BrandMark from "../BrandMark/BrandMark";
+import LanguageToggle from "../LanguageToggle/LanguageToggle";
 import "./WizardHeader.css";
 
 export default function WizardHeader({ progress, onBack, onNext }) {
+  const { t } = useTranslation();
+
   return (
     <header className="wizard-header">
       {/* DOM order is reversed from the visual left-to-right order so that
@@ -10,13 +14,13 @@ export default function WizardHeader({ progress, onBack, onNext }) {
       <BrandMark size="sm" />
 
       <div className="wizard-header__brand">
-        <p className="wizard-header__title">عمّر أرضك</p>
-        <p className="wizard-header__subtitle">من صكّك إلى بيتك في دقائق</p>
+        <p className="wizard-header__title">{t("brand.title")}</p>
+        <p className="wizard-header__subtitle">{t("brand.subtitle")}</p>
       </div>
 
       {onBack && (
         <button type="button" className="wizard-header__mini-nav" onClick={onBack}>
-          ‹ السابق
+          {t("wizard.back")}
         </button>
       )}
 
@@ -28,13 +32,11 @@ export default function WizardHeader({ progress, onBack, onNext }) {
 
       {onNext && (
         <button type="button" className="wizard-header__mini-nav" onClick={onNext}>
-          التالي ›
+          {t("wizard.next")}
         </button>
       )}
 
-      <button type="button" className="wizard-header__lang" aria-label="English">
-        EN
-      </button>
+      <LanguageToggle className="wizard-header__lang" />
     </header>
   );
 }

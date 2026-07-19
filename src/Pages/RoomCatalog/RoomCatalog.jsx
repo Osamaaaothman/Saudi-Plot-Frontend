@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
@@ -9,61 +10,63 @@ import { useSlideDirection } from "../../Components/QuestionLayout/SlideDirectio
 import { slideVariants, slideTransition } from "../../Components/QuestionLayout/slideVariants";
 import "./RoomCatalog.css";
 
-const CATEGORIES = [
-  {
-    title: "غرف النوم والحمامات",
-    rooms: [
-      { id: "master", label: "غرفة نوم رئيسية – ماستر" },
-      { id: "bedroom", label: "غرفة نوم" },
-      { id: "bathroom", label: "حمام" },
-      { id: "closet", label: "غرفة ملابس", auto: true },
-    ],
-  },
-  {
-    title: "المعيشة",
-    rooms: [
-      { id: "living", label: "صالة للعيشة" },
-      { id: "kitchen", label: "مطبخ رئيسي" },
-      { id: "prepKitchen", label: "مطبخ تحضيري", auto: true },
-    ],
-  },
-  {
-    title: "الضيافة",
-    rooms: [
-      { id: "majlis", label: "مجلس رجال" },
-      { id: "dining", label: "مقطع طعام", auto: true },
-      { id: "guestBath", label: "حمام ومغاسل ضيوف", auto: true },
-    ],
-  },
-  {
-    title: "الخدمات",
-    rooms: [
-      { id: "driver", label: "غرفة سائق بحمّام" },
-      { id: "laundry", label: "غسيل وكيّ" },
-      { id: "storage", label: "مستودع" },
-    ],
-  },
-];
-
-const SUMMARY_TAGS = [
-  { label: "رئيسية · 28م²", color: "pink" },
-  { label: "نوم 2 · 16م²", color: "green" },
-  { label: "نوم 3 · 16م²", color: "green" },
-  { label: "نوم 4 · 14م²", color: "green" },
-  { label: "حمام رئيسي · 8م²", color: "purple" },
-  { label: "حمام · 6م²", color: "purple" },
-  { label: "ملابس · 6م²", color: "pink" },
-  { label: "صالة · 38م²", color: "gray" },
-  { label: "مطبخ · 20م²", color: "yellow" },
-  { label: "تحضيري · 8م²", color: "yellow" },
-  { label: "مجلس · 30م²", color: "blue" },
-  { label: "مقطع طعام · 16م²", color: "blue" },
-  { label: "حمام ضيوف · 5م²", color: "purple" },
-  { label: "غسيل · 8م²", color: "gray" },
-];
-
 export default function RoomCatalog() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const CATEGORIES = [
+    {
+      title: t("room_catalog.cat_bedrooms"),
+      rooms: [
+        { id: "master", label: t("room_catalog.master") },
+        { id: "bedroom", label: t("room_catalog.bedroom") },
+        { id: "bathroom", label: t("room_catalog.bathroom") },
+        { id: "closet", label: t("room_catalog.closet"), auto: true },
+      ],
+    },
+    {
+      title: t("room_catalog.cat_living"),
+      rooms: [
+        { id: "living", label: t("room_catalog.living") },
+        { id: "kitchen", label: t("room_catalog.kitchen") },
+        { id: "prepKitchen", label: t("room_catalog.prep_kitchen"), auto: true },
+      ],
+    },
+    {
+      title: t("room_catalog.cat_hospitality"),
+      rooms: [
+        { id: "majlis", label: t("room_catalog.majlis") },
+        { id: "dining", label: t("room_catalog.dining"), auto: true },
+        { id: "guestBath", label: t("room_catalog.guest_bath"), auto: true },
+      ],
+    },
+    {
+      title: t("room_catalog.cat_services"),
+      rooms: [
+        { id: "driver", label: t("room_catalog.driver_room") },
+        { id: "laundry", label: t("room_catalog.laundry") },
+        { id: "storage", label: t("room_catalog.storage") },
+      ],
+    },
+  ];
+
+  const SUMMARY_TAGS = [
+    { label: "رئيسية · 28م²", color: "pink" },
+    { label: "نوم 2 · 16م²", color: "green" },
+    { label: "نوم 3 · 16م²", color: "green" },
+    { label: "نوم 4 · 14م²", color: "green" },
+    { label: "حمام رئيسي · 8م²", color: "purple" },
+    { label: "حمام · 6م²", color: "purple" },
+    { label: "ملابس · 6م²", color: "pink" },
+    { label: "صالة · 38م²", color: "gray" },
+    { label: "مطبخ · 20م²", color: "yellow" },
+    { label: "تحضيري · 8م²", color: "yellow" },
+    { label: "مجلس · 30م²", color: "blue" },
+    { label: "مقطع طعام · 16م²", color: "blue" },
+    { label: "حمام ضيوف · 5م²", color: "purple" },
+    { label: "غسيل · 8م²", color: "gray" },
+  ];
+
   const counts = useFormStore((state) => state.roomCatalog);
   const setRoomCount = useFormStore((state) => state.setRoomCount);
 
@@ -83,15 +86,15 @@ export default function RoomCatalog() {
       <Navbar />
       <main className="room-catalog">
         <h1 className="room-catalog__title">
-          فراغات بيتك — عبّأناها من إجاباتك، عدّل ما تشاء
+          {t("room_catalog.title")}
         </h1>
         <p className="room-catalog__subtitle">
-          كل تغيير ينعكس فورًا على الحجم — وسنراقب لك المساحة مقابل أرضك
+          {t("room_catalog.subtitle")}
         </p>
 
         <div className="room-catalog__layout">
           <section className="room-catalog__catalog">
-            <h2 className="room-catalog__section-title">كتالوج الفراغات</h2>
+            <h2 className="room-catalog__section-title">{t("room_catalog.section_title")}</h2>
             {CATEGORIES.map((category) => (
               <div className="room-catalog__group" key={category.title}>
                 <p className="room-catalog__group-title">{category.title}</p>
@@ -101,7 +104,7 @@ export default function RoomCatalog() {
                     label={room.label}
                     value={counts[room.id]}
                     onChange={(value) => setRoomCount(room.id, value)}
-                    badge={room.auto ? "تلقائي" : undefined}
+                    badge={room.auto ? t("stepper.auto") : undefined}
                   />
                 ))}
               </div>
@@ -110,8 +113,8 @@ export default function RoomCatalog() {
 
           <aside className="room-catalog__summary">
             <div className="room-catalog__summary-header">
-              <h2 className="room-catalog__section-title">فراغات بيتك</h2>
-              <span className="room-catalog__count">{totalRooms} فراغًا</span>
+              <h2 className="room-catalog__section-title">{t("room_catalog.summary_title")}</h2>
+              <span className="room-catalog__count">{t("room_catalog.count", { count: totalRooms })}</span>
             </div>
 
             <div className="room-catalog__tags">
@@ -123,11 +126,11 @@ export default function RoomCatalog() {
             </div>
 
             <p className="room-catalog__banner">
-              231م² من 60% مساحة البناء المسموحة — يناسب أرضك (2,892م²) بارتياح ✓
+              {t("room_catalog.banner")}
             </p>
 
             <Button fullWidth onClick={() => navigate("/generating")}>
-              ابدأ تصميم مخططي ←
+              {t("room_catalog.btn")}
             </Button>
           </aside>
         </div>

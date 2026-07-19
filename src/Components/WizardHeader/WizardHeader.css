@@ -60,11 +60,6 @@
 
 .wizard-header__lang {
   flex-shrink: 0;
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 14px;
-  color: var(--olive-dark);
 }
 
 @media (max-width: 768px) {
