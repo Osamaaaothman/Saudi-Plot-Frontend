@@ -48,6 +48,12 @@ export const useFormStore = create((set, get) => ({
   landCoordinates: { lat: "", lng: "" },
   setLandCoordinates: (landCoordinates) => set({ landCoordinates }),
 
+  // Plot orientation in degrees (0 = north-up), set via the rotation handle
+  // on the map picker. Purely visual — lets the drawn rectangle match the
+  // plot's real-world orientation instead of always being axis-aligned.
+  landRotation: 0,
+  setLandRotation: (landRotation) => set({ landRotation }),
+
   // Collected answers (UI-friendly form).
   familyMembers: { adults: 4, children: 3 },
   hasElderly: true,

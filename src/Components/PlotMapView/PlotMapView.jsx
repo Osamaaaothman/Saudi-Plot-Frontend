@@ -36,7 +36,7 @@ const EMPTY_FEATURE_COLLECTION = { type: "FeatureCollection", features: [] };
  * draggable marker — just a view. Lazy-imported by Result3D so MapLibre's
  * bundle cost is only paid when someone actually opens this tab.
  */
-export default function PlotMapView({ lat, lng, widthM, heightM }) {
+export default function PlotMapView({ lat, lng, widthM, heightM, rotationDeg = 0 }) {
   const { t } = useTranslation();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -90,7 +90,7 @@ export default function PlotMapView({ lat, lng, widthM, heightM }) {
       map.getSource(RECT_SOURCE_ID).setData({
         type: "FeatureCollection",
         features: [
-          { type: "Feature", properties: {}, geometry: buildPlotRectangle(lat, lng, widthM, heightM) },
+          { type: "Feature", properties: {}, geometry: buildPlotRectangle(lat, lng, widthM, heightM, rotationDeg) },
         ],
       });
       map.getSource(LABEL_SOURCE_ID).setData({
