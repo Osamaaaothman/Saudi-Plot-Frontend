@@ -1,5 +1,5 @@
-const API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
+import { callGeminiWithFallback } from "./geminiClient";
+
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 
@@ -143,46 +143,7 @@ export function validateFile(file) {
   }
 }
 
-const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
-const MAX_RETRIES = 2;
-const RETRY_DELAY_MS = 1500;
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function callGeminiOnce(apiKey, base64, mimeType, onStatus) {
-  const response = await fetch(`${API_URL}?key=${apiKey.trim()}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            { text: buildPrompt() },
-            { inlineData: { mimeType, data: base64 } },
-          ],
-        },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    let errorMsg = `فشل الاتصال بالخادم (رمز الخطأ: ${response.status})`;
-    try {
-      const errBody = await response.json();
-      if (errBody?.error?.message) errorMsg = errBody.error.message;
-    } catch {
-      // ignore parse error
-    }
-    const error = new Error(errorMsg);
-    error.transient = RETRYABLE_STATUS.has(response.status);
-    throw error;
-  }
-
-  onStatus("parsing");
-  const data = await response.json();
-
+async function processGeminiResponse(data) {
   if (!data.candidates || data.candidates.length === 0) {
     if (data.promptFeedback?.blockReason) {
       throw new Error(`تم حجب المحتوى: ${data.promptFeedback.blockReason}`);
@@ -227,18 +188,24 @@ export async function analyzeDeed(file, onStatus) {
         ? "image/png"
         : "image/jpeg");
 
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    onStatus("sending");
-    try {
-      const data = await callGeminiOnce(apiKey, base64, mimeType, onStatus);
-      if (data.is_valid_deed === false) {
-        throw new Error(data.message || "هذا الملف لا يبدو أنه صك عقاري سعودي. يرجى رفع صك الأرض.");
-      }
-      return data;
-    } catch (err) {
-      const isLastAttempt = attempt === MAX_RETRIES;
-      if (!err.transient || isLastAttempt) throw err;
-      await sleep(RETRY_DELAY_MS * (attempt + 1));
-    }
+  const requestBody = {
+    contents: [
+      {
+        parts: [
+          { text: buildPrompt() },
+          { inlineData: { mimeType, data: base64 } },
+        ],
+      },
+    ],
+  };
+
+  const data = await callGeminiWithFallback({ apiKey, requestBody, onStatus });
+
+  const result = await processGeminiResponse(data);
+
+  if (result.is_valid_deed === false) {
+    throw new Error(result.message || "هذا الملف لا يبدو أنه صك عقاري سعودي. يرجى رفع صك الأرض.");
   }
+
+  return result;
 }
