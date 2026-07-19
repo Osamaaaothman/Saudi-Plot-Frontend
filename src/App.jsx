@@ -1,6 +1,7 @@
 import { cloneElement, useState } from "react";
 import { Routes, Route, useLocation, useOutlet } from "react-router-dom";
 import { AnimatePresence, MotionConfig } from "framer-motion";
+import Landing from "./Pages/Landing/Landing";
 import Upload from "./Pages/Upload/Upload";
 import Result from "./Pages/Result/Result";
 import ExtractionFailed from "./Pages/ExtractionFailed/ExtractionFailed";
@@ -60,7 +61,8 @@ function QuestionsOutlet() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Upload />} />
+      <Route path="/" element={<Landing />} />
+      <Route path="/upload" element={<Upload />} />
       <Route path="/result" element={<Result />} />
       <Route path="/manual-entry" element={<ExtractionFailed />} />
       <Route path="/confirm-data" element={<ConfirmData />} />

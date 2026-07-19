@@ -44,7 +44,7 @@ export default function ExtractionFailed() {
               </div>
             </div>
 
-            <Button variant="secondary" onClick={() => navigate("/")}>
+            <Button variant="secondary" onClick={() => navigate("/upload")}>
               إعادة المحاولة بصورة أوضح
             </Button>
 
