@@ -1,14 +1,11 @@
-/* Import Almarai Font */
-@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap');
-
 /* ============================
-   ROOM CATALOG STYLES
+   ROOM CATALOG STYLES (rethemed to the warm sand/olive/clay palette)
    ============================ */
 
 .room-catalog-wrapper {
   min-height: 100vh;
-  background-color: #F0F2F5;
-  font-family: 'Almarai', sans-serif;
+  background-color: var(--paper);
+  font-family: var(--body);
   direction: rtl;
   padding: 2rem 1rem;
   box-sizing: border-box;
@@ -25,15 +22,16 @@
 }
 
 .room-catalog-title {
+  font-family: var(--display);
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--ink);
   margin: 0 0 0.25rem 0;
 }
 
 .room-catalog-subtitle {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--muted);
   margin: 0;
 }
 
@@ -52,9 +50,10 @@
 
 /* Cards */
 .room-catalog-card {
-  background: white;
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 20px rgba(41, 35, 27, 0.06);
   padding: 1.25rem;
   box-sizing: border-box;
 }
@@ -74,9 +73,10 @@
 
 /* Section Titles */
 .room-catalog-section-title {
+  font-family: var(--display);
   font-size: 0.875rem;
   font-weight: 700;
-  color: #374151;
+  color: var(--ink);
   margin: 0 0 1rem 0;
 }
 
@@ -98,27 +98,27 @@
 }
 
 .room-tag-red {
-  background-color: #FDE8E8;
-  color: #C0392B;
-  border-color: #FADBD8;
+  background-color: #f5e4dd;
+  color: #9d5b3e;
+  border-color: #ecd3c8;
 }
 
 .room-tag-orange {
-  background-color: #FDEBD0;
-  color: #D35400;
-  border-color: #FAD7A0;
+  background-color: #f6ead0;
+  color: #8a6a1f;
+  border-color: #eeddb8;
 }
 
 .room-tag-green {
-  background-color: #E8F8F5;
-  color: #1ABC9C;
-  border-color: #D5F5E3;
+  background-color: #e9eedf;
+  color: #53633c;
+  border-color: #d9e1c8;
 }
 
 .room-tag-blue {
-  background-color: #EBF5FB;
-  color: #2980B9;
-  border-color: #D6EAF8;
+  background-color: #e3e8df;
+  color: #4b5d4f;
+  border-color: #d2dacb;
 }
 
 /* Success Banner */
@@ -129,8 +129,8 @@
   margin-bottom: 1rem;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  background-color: #F0FDF4;
-  color: #16A34A;
+  background-color: #e9eedf;
+  color: #53633c;
   font-size: 0.75rem;
 }
 
@@ -138,8 +138,8 @@
   width: 1rem;
   height: 1rem;
   border-radius: 50%;
-  background-color: #22C55E;
-  color: white;
+  background-color: var(--olive);
+  color: #fff9ee;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,20 +150,25 @@
 /* Primary Button */
 .btn-primary {
   width: 100%;
-  background-color: #1B4F72;
-  color: white;
+  background-color: var(--dark);
+  color: #fff9ee;
   border: none;
   padding: 0.75rem;
   border-radius: 0.5rem;
   font-weight: 700;
   font-size: 0.875rem;
   cursor: pointer;
-  font-family: 'Almarai', sans-serif;
-  transition: background-color 0.2s ease;
+  font-family: var(--body);
+  transition: filter 0.2s ease, transform 0.15s ease;
 }
 
 .btn-primary:hover {
-  background-color: #154360;
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.99);
 }
 
 /* Rooms List */
@@ -191,7 +196,7 @@
 
 .room-name {
   font-size: 0.75rem;
-  color: #4b5563;
+  color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -199,12 +204,12 @@
 
 .room-note {
   font-size: 0.65rem;
-  color: #9ca3af;
+  color: var(--muted-light);
   flex-shrink: 0;
 }
 
 .room-note-blue {
-  color: #60a5fa;
+  color: var(--clay);
 }
 
 /* Counter */
@@ -219,20 +224,20 @@
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
-  background-color: #F3F4F6;
+  background-color: var(--sand-tint-strong);
   border: none;
-  color: #6b7280;
+  color: var(--olive-dark);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
   cursor: pointer;
-  font-family: 'Almarai', sans-serif;
+  font-family: var(--body);
   transition: background-color 0.15s ease;
 }
 
 .counter-btn:hover {
-  background-color: #E5E7EB;
+  background-color: var(--sand);
 }
 
 .counter-value {
@@ -240,7 +245,7 @@
   text-align: center;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #374151;
+  color: var(--ink);
 }
 
 /* ============================
