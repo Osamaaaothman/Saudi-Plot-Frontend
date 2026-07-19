@@ -25,6 +25,15 @@ function buildBoundaryFields(deed) {
   ];
 }
 
+// Pull the first numeric value out of a boundary string like
+// "70 م — على شارع عرض 20 م" -> "70". Used to pre-fill the dimension
+// inputs when the deed happens to carry them; the user still must confirm.
+function leadingNumber(text) {
+  if (!text) return "";
+  const match = String(text).match(/\d+(?:\.\d+)?/);
+  return match ? match[0] : "";
+}
+
 function InfoRow({ label, value }) {
   if (value == null || value === "") return null;
   return (
@@ -38,10 +47,34 @@ function InfoRow({ label, value }) {
 export default function ConfirmData() {
   const navigate = useNavigate();
   const extractedDeedRaw = useFormStore((state) => state.extractedDeedRaw);
+  const setLandDimensions = useFormStore((state) => state.setLandDimensions);
   const deedBoundaryFields = buildBoundaryFields(extractedDeedRaw);
 
   const [fields, setFields] = useState(deedBoundaryFields ?? FALLBACK_BOUNDARIES);
   const [editingId, setEditingId] = useState(null);
+
+  // Plot dimensions are mandatory. Pre-fill from the deed's boundaries when we
+  // can, but the user must confirm both before continuing.
+  const [dimensions, setDimensions] = useState(() => ({
+    width: leadingNumber(extractedDeedRaw?.boundaries?.north),
+    height: leadingNumber(extractedDeedRaw?.boundaries?.east),
+  }));
+  const [dimTouched, setDimTouched] = useState(false);
+
+  const dimensionsComplete =
+    dimensions.width.trim() !== "" &&
+    dimensions.height.trim() !== "" &&
+    Number(dimensions.width) > 0 &&
+    Number(dimensions.height) > 0;
+
+  function handleContinue() {
+    if (!dimensionsComplete) {
+      setDimTouched(true);
+      return;
+    }
+    setLandDimensions(dimensions);
+    navigate("/questions/1");
+  }
 
   const doc = extractedDeedRaw?.document;
   const property = extractedDeedRaw?.property;
@@ -205,11 +238,52 @@ export default function ConfirmData() {
           </section>
         )}
 
+        {/* ── Plot dimensions (required) ── */}
+        <section className="confirm-section confirm-section--dims">
+          <h2 className="confirm-section__title">أبعاد الأرض (مطلوب)</h2>
+          <p className="confirm-dims__hint">
+            لم نتمكن دائمًا من قراءة أبعاد الأرض من الصك — تأكّد من عرض وطول أرضك قبل المتابعة.
+          </p>
+          <div className="confirm-dims__grid">
+            <label className="confirm-dims__field">
+              <span className="confirm-dims__label">عرض الأرض (متر)</span>
+              <input
+                type="number"
+                min="0"
+                inputMode="decimal"
+                className={`confirm-dims__input${
+                  dimTouched && dimensions.width.trim() === "" ? " confirm-dims__input--error" : ""
+                }`}
+                placeholder="مثال: 70"
+                value={dimensions.width}
+                onChange={(e) => setDimensions((d) => ({ ...d, width: e.target.value }))}
+              />
+            </label>
+            <label className="confirm-dims__field">
+              <span className="confirm-dims__label">طول الأرض (متر)</span>
+              <input
+                type="number"
+                min="0"
+                inputMode="decimal"
+                className={`confirm-dims__input${
+                  dimTouched && dimensions.height.trim() === "" ? " confirm-dims__input--error" : ""
+                }`}
+                placeholder="مثال: 42"
+                value={dimensions.height}
+                onChange={(e) => setDimensions((d) => ({ ...d, height: e.target.value }))}
+              />
+            </label>
+          </div>
+          {dimTouched && !dimensionsComplete && (
+            <p className="confirm-dims__error">الرجاء إدخال عرض وطول الأرض (أرقام أكبر من صفر) قبل المتابعة.</p>
+          )}
+        </section>
+
         <p className="confirm-data__source">
           {docNumber ? `المصدر: صك إلكتروني رقم ${docNumber} — وزارة العدل` : "المصدر: وزارة العدل"}
         </p>
 
-        <Button fullWidth onClick={() => navigate("/questions/1")}>
+        <Button fullWidth disabled={!dimensionsComplete} onClick={handleContinue}>
           البيانات صحيحة — متابعة إلى أسئلة الأسرة
         </Button>
       </main>

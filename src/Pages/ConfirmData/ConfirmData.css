@@ -250,6 +250,73 @@
   text-decoration: underline;
 }
 
+/* Plot dimensions (required) */
+.confirm-section--dims {
+  border-color: var(--olive);
+}
+
+.confirm-dims__hint {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.confirm-dims__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.confirm-dims__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.confirm-dims__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.confirm-dims__input {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--paper-strong);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-family: inherit;
+  text-align: right;
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.2s ease;
+}
+
+.confirm-dims__input:focus {
+  outline: none;
+  border-color: var(--olive);
+  box-shadow: 0 0 0 3px rgba(110, 114, 72, 0.15);
+}
+
+.confirm-dims__input--error {
+  border-color: #b91c1c;
+  background: #fdeaea;
+}
+
+.confirm-dims__error {
+  margin: 12px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .confirm-dims__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* QR / verification */
 .qr-link {
   font-size: 14px;

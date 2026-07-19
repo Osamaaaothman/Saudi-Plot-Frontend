@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
+import { useFormStore } from "../../Store/useFormStore";
 import "./ExtractionFailed.css";
 
+// width & height are the mandatory plot dimensions; street is extra context.
 const FIELDS = [
-  { key: "length", label: "طول الأرض (متر)", placeholder: "مثال: 70" },
-  { key: "width", label: "عرض الأرض (متر)", placeholder: "مثال: 42" },
-  { key: "street", label: "عرض الشارع الرئيسي (متر)", placeholder: "مثال: 20" },
+  { key: "width", label: "عرض الأرض (متر)", placeholder: "مثال: 70", required: true },
+  { key: "height", label: "طول الأرض (متر)", placeholder: "مثال: 42", required: true },
+  { key: "street", label: "عرض الشارع الرئيسي (متر)", placeholder: "مثال: 20", required: true },
 ];
 
 export default function ExtractionFailed() {
@@ -17,7 +19,8 @@ export default function ExtractionFailed() {
   // (backend/OCR error). Choosing "enter manually" from Upload shows just the form.
   const extractionFailed = Boolean(location.state?.extractionFailed);
   const errorMessage = location.state?.errorMessage || "لم نستطع قراءة بيانات الصك";
-  const [values, setValues] = useState({ length: "", width: "", street: "" });
+  const setLandDimensions = useFormStore((state) => state.setLandDimensions);
+  const [values, setValues] = useState({ width: "", height: "", street: "" });
 
   const isComplete = FIELDS.every((field) => values[field.key].trim() !== "");
 
@@ -27,6 +30,7 @@ export default function ExtractionFailed() {
 
   function handleContinue() {
     if (!isComplete) return;
+    setLandDimensions({ width: values.width, height: values.height });
     navigate("/questions/1", { state: { landData: values } });
   }
 

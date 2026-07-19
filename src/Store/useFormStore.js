@@ -38,6 +38,12 @@ export const useFormStore = create((set, get) => ({
   extractedDeedRaw: null,
   setExtractedDeedRaw: (data) => set({ extractedDeedRaw: data }),
 
+  // Plot dimensions in metres. Always required before leaving the deed step —
+  // the deed doesn't always carry explicit width/height, so the user must
+  // confirm/enter both (see ConfirmData + ExtractionFailed).
+  landDimensions: { width: "", height: "" },
+  setLandDimensions: (landDimensions) => set({ landDimensions }),
+
   // Collected answers (UI-friendly form).
   familyMembers: { adults: 4, children: 3 },
   hasElderly: true,
@@ -88,6 +94,10 @@ export const useFormStore = create((set, get) => ({
 
     return {
       ...state.deed,
+      land_dimensions: {
+        width_m: Number(state.landDimensions.width) || null,
+        height_m: Number(state.landDimensions.height) || null,
+      },
       family_preferences: {
         family_members: {
           count_range: countRange(total),
