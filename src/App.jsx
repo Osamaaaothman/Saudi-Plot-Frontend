@@ -15,6 +15,10 @@ import Question5 from "./Pages/Question5/Question5";
 import Question6 from "./Pages/Question6/Question6";
 import RoomCatalog from "./Pages/RoomCatalog/RoomCatalog";
 import Result3D from "./Pages/Result3D/Result3D";
+import Login from "./Pages/Login/Login";
+import Signup from "./Pages/Signup/Signup";
+import Projects from "./Pages/Projects/Projects";
+import ProtectedRoute from "./Components/ProtectedRoute/ProtectedRoute";
 import { SlideDirectionContext } from "./Components/QuestionLayout/SlideDirectionContext";
 
 const STEP_ORDER = [
@@ -77,6 +81,16 @@ export default function App() {
         <Route path="/room-catalog" element={<RoomCatalog />} />
       </Route>
       <Route path="/result-3d" element={<Result3D />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route
+        path="/projects"
+        element={
+          <ProtectedRoute>
+            <Projects />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

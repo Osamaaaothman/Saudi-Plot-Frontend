@@ -1,10 +1,13 @@
 import { lazy, Suspense, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
 import { AccessibilityIcon } from "../../Components/WizardIcons/WizardIcons";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
+import { useAuthStore } from "../../Store/useAuthStore";
+import { saveProject } from "../../lib/projects";
 import "./Result3D.css";
 
 // MapLibre GL is a heavy dependency (~1MB) — only fetch it once someone
@@ -102,8 +105,13 @@ function ShareIcon() {
 const Result3D = () => {
   const { t } = useTranslation();
   usePageTitle(t("result3d.title"));
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState("2D");
+  const [projectName, setProjectName] = useState("");
+  const [savingProject, setSavingProject] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
 
+  const session = useAuthStore((state) => state.session);
   const landCoordinates = useFormStore((state) => state.landCoordinates);
   const landDimensions = useFormStore((state) => state.landDimensions);
   const landRotation = useFormStore((state) => state.landRotation);
@@ -112,6 +120,7 @@ const Result3D = () => {
   const guestReceptionId = useFormStore((state) => state.guestReceptionId);
   const kitchenType = useFormStore((state) => state.kitchenType);
   const roomCatalog = useFormStore((state) => state.roomCatalog);
+  const snapshotForSave = useFormStore((state) => state.snapshotForSave);
 
   const width = Number(landDimensions?.width) || 0;
   const height = Number(landDimensions?.height) || 0;
@@ -129,6 +138,25 @@ const Result3D = () => {
     () => ROOM_BLOCKS.filter((block) => (roomCatalog?.[block.id] || 0) > 0),
     [roomCatalog]
   );
+
+  async function handleSaveProject(event) {
+    event.preventDefault();
+    if (!session) {
+      navigate("/login", { state: { from: "/result-3d" } });
+      return;
+    }
+    if (!projectName.trim()) return;
+    setSavingProject(true);
+    setSaveMessage("");
+    const { error } = await saveProject(session.user.id, projectName.trim(), snapshotForSave());
+    setSavingProject(false);
+    if (error) {
+      setSaveMessage(error.message);
+      return;
+    }
+    setProjectName("");
+    setSaveMessage(t("result3d.save_success"));
+  }
 
   return (
     <div className="page">
@@ -250,6 +278,20 @@ const Result3D = () => {
                   </div>
                 )}
               </div>
+
+              <form className="save-project" onSubmit={handleSaveProject}>
+                <input
+                  type="text"
+                  className="save-project__input"
+                  placeholder={t("result3d.save_placeholder")}
+                  value={projectName}
+                  onChange={(event) => setProjectName(event.target.value)}
+                />
+                <button type="submit" className="save-project__btn" disabled={savingProject || !projectName.trim()}>
+                  {savingProject ? t("auth.loading") : t("result3d.save_btn")}
+                </button>
+              </form>
+              {saveMessage && <p className="save-project__message">{saveMessage}</p>}
 
               <Button fullWidth>
                 <DownloadIcon /> {t("result3d.btn_pdf")}
