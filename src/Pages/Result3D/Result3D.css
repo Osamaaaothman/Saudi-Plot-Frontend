@@ -380,6 +380,53 @@
   padding: 0.5rem 0.7rem;
 }
 
+.save-project__usage {
+  margin: -0.3rem 0 0 0;
+  font-size: 0.75rem;
+  color: var(--muted-light);
+}
+
+/* Save-limit upgrade card, shown instead of the save form once a user has
+   hit their plan's saved-project limit. */
+.save-limit {
+  background: var(--sand-tint);
+  border: 1px solid var(--sand);
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.save-limit__title {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.save-limit__body {
+  margin: 0 0 0.3rem 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.save-limit__cta {
+  align-self: flex-start;
+  background: var(--clay);
+  color: #fff8ed;
+  border-radius: 0.6rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.save-limit__cta:hover {
+  filter: brightness(1.1);
+}
+
 /* Save-success toast */
 @keyframes save-toast-in {
   from {
