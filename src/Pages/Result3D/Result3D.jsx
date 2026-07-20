@@ -27,12 +27,6 @@ const Result3D = () => {
           </p>
         </div>
 
-        {/* Green Banner */}
-        <div className="house-plan-banner">
-          <span className="banner-icon">✓</span>
-          <span>{t("result3d.banner")}</span>
-        </div>
-
         {/* Main Layout */}
         <div className="house-plan-layout">
 
@@ -46,11 +40,8 @@ const Result3D = () => {
               >
                 {t("result3d.toggle_2d")}
               </button>
-              <button
-                className={`toggle-btn ${viewMode === '3D' ? 'toggle-btn-active' : ''}`}
-                onClick={() => setViewMode('3D')}
-              >
-                {t("result3d.toggle_3d")}
+              <button className="toggle-btn toggle-btn--disabled" disabled>
+                {t("result3d.toggle_3d")} <span className="toggle-btn-badge">{t("result3d.soon")}</span>
               </button>
               <button
                 className={`toggle-btn ${viewMode === 'MAP' ? 'toggle-btn-active' : ''}`}
@@ -143,34 +134,6 @@ const Result3D = () => {
           {/* RIGHT COLUMN (visually): Sidebar - placed FIRST in DOM */}
           <div className="house-plan-sidebar">
 
-            {/* Summary Card */}
-            <div className="summary-card">
-              <h3 className="summary-title">{t("result3d.summary_title")}</h3>
-
-              <div className="summary-list">
-                <div className="summary-item">
-                  <span className="summary-label">{t("result3d.summary_total")}</span>
-                  <span className="summary-value">2,892 م²</span>
-                </div>
-                <div className="summary-item">
-                  <span className="summary-label">{t("result3d.summary_streets")}</span>
-                  <span className="summary-value">3 جهات – غربي شمالي شرقي</span>
-                </div>
-                <div className="summary-item">
-                  <span className="summary-label">{t("result3d.summary_dims")}</span>
-                  <span className="summary-value">4 نوم – 3 دور – مساحة</span>
-                </div>
-                <div className="summary-item">
-                  <span className="summary-label">{t("result3d.summary_kitchen")}</span>
-                  <span className="summary-value">مطبخ مفتوح مستقل</span>
-                </div>
-                <div className="summary-item">
-                  <span className="summary-label">{t("result3d.summary_design")}</span>
-                  <span className="summary-value">دور أرضي</span>
-                </div>
-              </div>
-            </div>
-
             {/* Action Buttons */}
             <button className="action-btn action-btn-primary">
               {t("result3d.btn_pdf")}
@@ -184,28 +147,15 @@ const Result3D = () => {
             <div className="file-formats">
               <p className="file-formats-title">{t("result3d.files_title")}</p>
               <div className="file-formats-buttons">
-                <button className="format-btn">DWG</button>
-                <button className="format-btn">DXF</button>
+                <button className="format-btn format-btn--disabled" disabled>
+                  DWG <span className="format-btn-badge">{t("result3d.soon")}</span>
+                </button>
+                <button className="format-btn format-btn--disabled" disabled>
+                  DXF <span className="format-btn-badge">{t("result3d.soon")}</span>
+                </button>
                 <button className="format-btn">SVG</button>
               </div>
             </div>
-
-            {/* Price */}
-            <div className="price-section">
-              <p className="price-label">{t("result3d.price_label")}</p>
-              <p className="price-value">18,000 ر.س</p>
-            </div>
-
-            {/* Additional Buttons */}
-            <div className="extra-buttons">
-              <button className="extra-btn">EPC 240 / RCA</button>
-              <button className="extra-btn">ألوان الواجهة (CFD/CFM)</button>
-            </div>
-
-            {/* Footer Note */}
-            <p className="footer-note">
-              {t("result3d.footer_note")}
-            </p>
           </div>
         </div>
       </div>
