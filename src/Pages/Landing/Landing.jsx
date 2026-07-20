@@ -10,7 +10,7 @@ import "./Landing.css";
 const PRICING_TIERS = [
   {
     id: "basic",
-    priceId: import.meta.env.VITE_STRIPE_PRICE_BASIC,
+    free: true,
     features: ["feature_projects_1", "feature_2d", "feature_support_email"],
   },
   {
@@ -148,6 +148,11 @@ export default function Landing() {
   const chooseFile = () => uploadRef.current?.click();
 
   async function handleSubscribe(tier) {
+    if (tier.free) {
+      if (session) navigate("/upload");
+      else navigate("/signup", { state: { from: "/", intendedTier: tier.id } });
+      return;
+    }
     if (!session) {
       navigate("/signup", { state: { from: "/", intendedTier: tier.id } });
       return;
@@ -481,9 +486,15 @@ export default function Landing() {
               <h3>{t(`pricing.tier_${tier.id}_name`)}</h3>
               <p className="landing-price-tagline">{t(`pricing.tier_${tier.id}_tagline`)}</p>
               <div className="landing-price-amount">
-                <span className="landing-price-currency">{t("pricing.currency")}</span>
-                <span className="landing-price-value">{t(`pricing.tier_${tier.id}_price`)}</span>
-                <span className="landing-price-period">{t("pricing.period")}</span>
+                {tier.free ? (
+                  <span className="landing-price-value">{t("pricing.free")}</span>
+                ) : (
+                  <>
+                    <span className="landing-price-currency">{t("pricing.currency")}</span>
+                    <span className="landing-price-value">{t(`pricing.tier_${tier.id}_price`)}</span>
+                    <span className="landing-price-period">{t("pricing.period")}</span>
+                  </>
+                )}
               </div>
               <ul className="landing-price-features">
                 {tier.features.map((featureKey) => (
@@ -498,7 +509,11 @@ export default function Landing() {
                 onClick={() => handleSubscribe(tier)}
                 disabled={checkoutTier === tier.id}
               >
-                {checkoutTier === tier.id ? t("pricing.redirecting") : t("pricing.cta_subscribe")}
+                {checkoutTier === tier.id
+                  ? t("pricing.redirecting")
+                  : tier.free
+                    ? t("pricing.cta_free")
+                    : t("pricing.cta_subscribe")}
               </button>
             </article>
           ))}
