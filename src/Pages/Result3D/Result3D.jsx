@@ -6,7 +6,7 @@ import Button from "../../Components/Button/Button";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
 import { useAuthStore } from "../../Store/useAuthStore";
-import { saveProject } from "../../lib/projects";
+import { saveProject, getProjectUsage } from "../../lib/projects";
 import { uploadPlanImage } from "../../lib/cloudinary";
 import "./Result3D.css";
 
@@ -125,6 +125,7 @@ const Result3D = () => {
   const [savedName, setSavedName] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageError, setImageError] = useState("");
+  const [usage, setUsage] = useState(null); // { used, limit } | null while loading
 
   const session = useAuthStore((state) => state.session);
   const landCoordinates = useFormStore((state) => state.landCoordinates);
@@ -176,11 +177,18 @@ const Result3D = () => {
     const { error } = await saveProject(session.user.id, name, snapshotForSave());
     setSavingProject(false);
     if (error) {
-      setSaveError(error.message);
+      if (error.message === "project_limit_reached") {
+        // Our own optimistic count was stale (e.g. saved from another tab) —
+        // resync it so the upgrade card replaces the form immediately.
+        setUsage((prev) => (prev ? { ...prev, used: prev.limit } : prev));
+      } else {
+        setSaveError(error.message);
+      }
       return;
     }
     setProjectName("");
     setSavedName(name);
+    setUsage((prev) => (prev ? { ...prev, used: prev.used + 1 } : prev));
   }
 
   // Auto-dismiss the success toast after a few seconds; only ever calls
@@ -191,6 +199,24 @@ const Result3D = () => {
     const timer = setTimeout(() => setSavedName(""), 5000);
     return () => clearTimeout(timer);
   }, [savedName]);
+
+  // Load how many projects this user has saved and their plan's limit, so
+  // the save form can be replaced by an upgrade prompt once they hit it —
+  // the real enforcement lives server-side (enforce_project_limit trigger),
+  // this is purely for a friendly UI instead of a raw error after the fact.
+  useEffect(() => {
+    if (!session) return undefined;
+    let ignore = false;
+    getProjectUsage().then(({ used, limit, error }) => {
+      if (ignore || error) return;
+      setUsage({ used, limit });
+    });
+    return () => {
+      ignore = true;
+    };
+  }, [session]);
+
+  const atProjectLimit = usage && usage.limit !== null && usage.used >= usage.limit;
 
   return (
     <div className="page">
@@ -289,18 +315,35 @@ const Result3D = () => {
 
             {/* RIGHT COLUMN (visually): sidebar — placed FIRST in DOM */}
             <div className="house-plan-sidebar">
-              <form className="save-project" onSubmit={handleSaveProject}>
-                <input
-                  type="text"
-                  className="save-project__input"
-                  placeholder={t("result3d.save_placeholder")}
-                  value={projectName}
-                  onChange={(event) => setProjectName(event.target.value)}
-                />
-                <button type="submit" className="save-project__btn" disabled={savingProject || !projectName.trim()}>
-                  {savingProject ? t("auth.loading") : t("result3d.save_btn")}
-                </button>
-              </form>
+              {atProjectLimit ? (
+                <div className="save-limit">
+                  <p className="save-limit__title">{t("result3d.limit_reached_title")}</p>
+                  <p className="save-limit__body">{t("result3d.limit_reached_body", { limit: usage.limit })}</p>
+                  <Link to="/#pricing" className="save-limit__cta">
+                    {t("result3d.limit_upgrade_cta")}
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <form className="save-project" onSubmit={handleSaveProject}>
+                    <input
+                      type="text"
+                      className="save-project__input"
+                      placeholder={t("result3d.save_placeholder")}
+                      value={projectName}
+                      onChange={(event) => setProjectName(event.target.value)}
+                    />
+                    <button type="submit" className="save-project__btn" disabled={savingProject || !projectName.trim()}>
+                      {savingProject ? t("auth.loading") : t("result3d.save_btn")}
+                    </button>
+                  </form>
+                  {usage && usage.limit !== null && (
+                    <p className="save-project__usage">
+                      {t("result3d.usage_label", { used: usage.used, limit: usage.limit })}
+                    </p>
+                  )}
+                </>
+              )}
 
               {saveError && <p className="save-project__error">{saveError}</p>}
 
