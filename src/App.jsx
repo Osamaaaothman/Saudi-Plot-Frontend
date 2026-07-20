@@ -66,12 +66,52 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
-      <Route path="/upload" element={<Upload />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
+      {/* Everything below requires a signed-in account, even on the free
+          Basic tier — using the tool (not just saving) is what we track
+          per user, so there's no anonymous path through the wizard. */}
+      <Route
+        path="/upload"
+        element={
+          <ProtectedRoute>
+            <Upload />
+          </ProtectedRoute>
+        }
+      />
       {/* <Route path="/result" element={<Result />} /> */}
-      <Route path="/manual-entry" element={<ExtractionFailed />} />
-      <Route path="/confirm-data" element={<ConfirmData />} />
-      <Route path="/generating" element={<Generating />} />
-      <Route element={<QuestionsOutlet />}>
+      <Route
+        path="/manual-entry"
+        element={
+          <ProtectedRoute>
+            <ExtractionFailed />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/confirm-data"
+        element={
+          <ProtectedRoute>
+            <ConfirmData />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/generating"
+        element={
+          <ProtectedRoute>
+            <Generating />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        element={
+          <ProtectedRoute>
+            <QuestionsOutlet />
+          </ProtectedRoute>
+        }
+      >
         <Route path="/questions/1" element={<Question1 />} />
         <Route path="/questions/2" element={<Question2 />} />
         <Route path="/questions/3" element={<Question3 />} />
@@ -80,9 +120,14 @@ export default function App() {
         <Route path="/questions/6" element={<Question6 />} />
         <Route path="/room-catalog" element={<RoomCatalog />} />
       </Route>
-      <Route path="/result-3d" element={<Result3D />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route
+        path="/result-3d"
+        element={
+          <ProtectedRoute>
+            <Result3D />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/projects"
         element={
