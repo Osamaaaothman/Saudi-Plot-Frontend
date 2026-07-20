@@ -1,5 +1,5 @@
-import { lazy, Suspense, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
@@ -105,6 +105,15 @@ function UploadIcon() {
   );
 }
 
+function CheckCircleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9.25" stroke="currentColor" strokeWidth="1.7" />
+      <path d="m8 12.3 2.6 2.6L16.2 9" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 const Result3D = () => {
   const { t } = useTranslation();
   usePageTitle(t("result3d.title"));
@@ -112,7 +121,8 @@ const Result3D = () => {
   const [viewMode, setViewMode] = useState("2D");
   const [projectName, setProjectName] = useState("");
   const [savingProject, setSavingProject] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
+  const [saveError, setSaveError] = useState("");
+  const [savedName, setSavedName] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageError, setImageError] = useState("");
 
@@ -158,18 +168,29 @@ const Result3D = () => {
       navigate("/login", { state: { from: "/result-3d" } });
       return;
     }
-    if (!projectName.trim()) return;
+    const name = projectName.trim();
+    if (!name) return;
     setSavingProject(true);
-    setSaveMessage("");
-    const { error } = await saveProject(session.user.id, projectName.trim(), snapshotForSave());
+    setSaveError("");
+    setSavedName("");
+    const { error } = await saveProject(session.user.id, name, snapshotForSave());
     setSavingProject(false);
     if (error) {
-      setSaveMessage(error.message);
+      setSaveError(error.message);
       return;
     }
     setProjectName("");
-    setSaveMessage(t("result3d.save_success"));
+    setSavedName(name);
   }
+
+  // Auto-dismiss the success toast after a few seconds; only ever calls
+  // setState from inside the timeout callback, never synchronously in the
+  // effect body (see the set-state-in-effect lint rule this repo enforces).
+  useEffect(() => {
+    if (!savedName) return undefined;
+    const timer = setTimeout(() => setSavedName(""), 5000);
+    return () => clearTimeout(timer);
+  }, [savedName]);
 
   return (
     <div className="page">
@@ -280,7 +301,32 @@ const Result3D = () => {
                   {savingProject ? t("auth.loading") : t("result3d.save_btn")}
                 </button>
               </form>
-              {saveMessage && <p className="save-project__message">{saveMessage}</p>}
+
+              {saveError && <p className="save-project__error">{saveError}</p>}
+
+              {savedName && (
+                <div className="save-toast" role="status">
+                  <span className="save-toast__icon">
+                    <CheckCircleIcon />
+                  </span>
+                  <div className="save-toast__body">
+                    <p className="save-toast__title">{t("result3d.save_success", { name: savedName })}</p>
+                    <Link to="/projects" className="save-toast__link">
+                      {t("result3d.save_view_projects")}
+                    </Link>
+                  </div>
+                  <button
+                    type="button"
+                    className="save-toast__close"
+                    aria-label={t("map.close")}
+                    onClick={() => setSavedName("")}
+                  >
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">
+                      <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    </svg>
+                  </button>
+                </div>
+              )}
 
               <Button fullWidth>
                 <DownloadIcon /> {t("result3d.btn_pdf")}
