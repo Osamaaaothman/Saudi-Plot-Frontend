@@ -84,6 +84,28 @@ export const useFormStore = create((set, get) => ({
   setRoomCount: (id, count) =>
     set((state) => ({ roomCatalog: { ...state.roomCatalog, [id]: count } })),
 
+  // Snapshot of everything needed to resume a session later — saved as-is
+  // into the `projects.payload` jsonb column (see src/Pages/Projects).
+  snapshotForSave: () => {
+    const state = get();
+    return {
+      extractedDeedRaw: state.extractedDeedRaw,
+      landDimensions: state.landDimensions,
+      landCoordinates: state.landCoordinates,
+      landRotation: state.landRotation,
+      familyMembers: state.familyMembers,
+      hasElderly: state.hasElderly,
+      guestReceptionId: state.guestReceptionId,
+      kitchenType: state.kitchenType,
+      services: state.services,
+      roomCatalog: state.roomCatalog,
+    };
+  },
+
+  // Inverse of snapshotForSave — restores a saved project back into the
+  // live form store so the wizard/result pages pick it back up.
+  restoreFromSnapshot: (snapshot) => set({ ...snapshot }),
+
   // Assemble the full payload in the backend JSON shape.
   buildPayload: () => {
     const state = get();

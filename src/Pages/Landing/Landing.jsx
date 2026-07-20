@@ -3,7 +3,43 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import usePageTitle from "../../hooks/usePageTitle";
 import LanguageToggle from "../../Components/LanguageToggle/LanguageToggle";
+import { useAuthStore } from "../../Store/useAuthStore";
+import { startCheckout } from "../../lib/stripe";
 import "./Landing.css";
+
+const PRICING_TIERS = [
+  {
+    id: "basic",
+    priceId: import.meta.env.VITE_STRIPE_PRICE_BASIC,
+    features: ["feature_projects_1", "feature_2d", "feature_support_email"],
+  },
+  {
+    id: "pro",
+    popular: true,
+    priceId: import.meta.env.VITE_STRIPE_PRICE_PRO,
+    features: [
+      "feature_projects_10",
+      "feature_2d",
+      "feature_map",
+      "feature_pdf",
+      "feature_support_priority",
+    ],
+  },
+  {
+    id: "premium",
+    priceId: import.meta.env.VITE_STRIPE_PRICE_PREMIUM,
+    features: [
+      "feature_projects_unlimited",
+      "feature_2d",
+      "feature_map",
+      "feature_pdf",
+      "feature_cad",
+      "feature_architect_call",
+      "feature_support_priority",
+      "feature_early_access",
+    ],
+  },
+];
 
 const arabicNumber = new Intl.NumberFormat("ar-EG");
 
@@ -71,6 +107,7 @@ function Counter({ target, className }) {
 
 export default function Landing() {
   const { t, i18n } = useTranslation();
+  usePageTitle();
   const navigate = useNavigate();
   const numLocale = i18n.language === "ar" ? "ar-SA" : "en";
   const numFmt = (n) => new Intl.NumberFormat(numLocale).format(n);
@@ -104,8 +141,27 @@ export default function Landing() {
   const [fileName, setFileName] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [checkoutTier, setCheckoutTier] = useState(null);
+  const [checkoutError, setCheckoutError] = useState("");
+  const session = useAuthStore((state) => state.session);
 
   const chooseFile = () => uploadRef.current?.click();
+
+  async function handleSubscribe(tier) {
+    if (!session) {
+      navigate("/signup", { state: { from: "/", intendedTier: tier.id } });
+      return;
+    }
+    if (!tier.priceId) {
+      setCheckoutError(t("pricing.not_configured"));
+      return;
+    }
+    setCheckoutError("");
+    setCheckoutTier(tier.id);
+    const { error } = await startCheckout(tier.priceId, session.user.id);
+    setCheckoutTier(null);
+    if (error) setCheckoutError(error === "missing_checkout_url" ? t("pricing.checkout_failed") : error);
+  }
 
   function handleReview() {
     if (!selectedFile) return;
@@ -199,6 +255,16 @@ export default function Landing() {
             <a href="#how" onClick={() => setIsMenuOpen(false)}>{t("landing.nav_how")}</a>
             <a href="#features" onClick={() => setIsMenuOpen(false)}>{t("landing.nav_features")}</a>
             <a href="#results" onClick={() => setIsMenuOpen(false)}>{t("landing.nav_results")}</a>
+            <a href="#pricing" onClick={() => setIsMenuOpen(false)}>{t("landing.nav_pricing")}</a>
+            {session === undefined ? null : session ? (
+              <Link className="landing-nav-account" to="/projects" onClick={() => setIsMenuOpen(false)}>
+                {t("auth.my_projects")}
+              </Link>
+            ) : (
+              <Link className="landing-nav-account" to="/login" onClick={() => setIsMenuOpen(false)}>
+                {t("auth.sign_in")}
+              </Link>
+            )}
             <LanguageToggle className="landing-nav-lang" />
             <Link className="landing-nav-cta" to="/upload" onClick={() => setIsMenuOpen(false)}>
               {t("landing.nav_cta")}
@@ -398,6 +464,50 @@ export default function Landing() {
         </div>
       </section>
 
+      <section className="landing-pricing landing-section" id="pricing">
+        <div className="landing-section-intro landing-reveal">
+          <span className="landing-kicker">{t("pricing.kicker")}</span>
+          <h2>{t("pricing.title")}</h2>
+          <p>{t("pricing.desc")}</p>
+        </div>
+
+        <div className="landing-pricing-grid">
+          {PRICING_TIERS.map((tier) => (
+            <article
+              className={tier.popular ? "landing-price-card landing-price-card--popular landing-reveal" : "landing-price-card landing-reveal"}
+              key={tier.id}
+            >
+              {tier.popular && <span className="landing-price-badge">{t("pricing.badge_popular")}</span>}
+              <h3>{t(`pricing.tier_${tier.id}_name`)}</h3>
+              <p className="landing-price-tagline">{t(`pricing.tier_${tier.id}_tagline`)}</p>
+              <div className="landing-price-amount">
+                <span className="landing-price-currency">{t("pricing.currency")}</span>
+                <span className="landing-price-value">{t(`pricing.tier_${tier.id}_price`)}</span>
+                <span className="landing-price-period">{t("pricing.period")}</span>
+              </div>
+              <ul className="landing-price-features">
+                {tier.features.map((featureKey) => (
+                  <li key={featureKey}>
+                    <span aria-hidden="true">✓</span> {t(`pricing.${featureKey}`)}
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                className={tier.popular ? "landing-price-cta landing-price-cta--primary" : "landing-price-cta"}
+                onClick={() => handleSubscribe(tier)}
+                disabled={checkoutTier === tier.id}
+              >
+                {checkoutTier === tier.id ? t("pricing.redirecting") : t("pricing.cta_subscribe")}
+              </button>
+            </article>
+          ))}
+        </div>
+
+        {checkoutError && <p className="landing-price-error">{checkoutError}</p>}
+        <p className="landing-price-note">{t("pricing.note")}</p>
+      </section>
+
       <section className="landing-final-cta landing-section landing-reveal">
         <span className="landing-kicker">{t("landing.final_kicker")}</span>
         <h2>{t("landing.final_title")}</h2>
@@ -415,6 +525,7 @@ export default function Landing() {
         <div className="landing-footer-links">
           <a href="#how">{t("landing.footer_how")}</a>
           <a href="#features">{t("landing.footer_features")}</a>
+          <a href="#pricing">{t("landing.nav_pricing")}</a>
           <a href="#start">{t("landing.footer_start")}</a>
         </div>
         <small>{t("landing.footer_rights")}</small>

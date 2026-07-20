@@ -335,6 +335,57 @@
   font-size: 0.9rem;
 }
 
+/* Save project */
+.save-project {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.save-project__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.7rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--line);
+  background: var(--paper-strong);
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-family: var(--body);
+}
+
+.save-project__input:focus {
+  outline: none;
+  border-color: var(--dark);
+}
+
+.save-project__btn {
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--dark);
+  background: var(--card);
+  color: var(--dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--body);
+  white-space: nowrap;
+}
+
+.save-project__btn:hover:not(:disabled) {
+  background: var(--sand-tint);
+}
+
+.save-project__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.save-project__message {
+  margin: -0.3rem 0 0 0;
+  font-size: 0.75rem;
+  color: var(--olive-dark);
+}
+
 /* File Formats */
 .file-formats {
   background: var(--card);

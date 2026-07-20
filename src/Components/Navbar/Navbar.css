@@ -26,9 +26,67 @@
   flex-shrink: 0;
 }
 
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.navbar__account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar__account-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 8px 4px;
+}
+
+.navbar__account-link:hover {
+  color: var(--clay);
+}
+
+.navbar__account-link--cta {
+  background: var(--dark);
+  color: #fff9ee;
+  border-radius: 8px;
+  padding: 9px 18px;
+}
+
+.navbar__account-link--cta:hover {
+  color: #fff9ee;
+  filter: brightness(1.15);
+}
+
+.navbar__account-logout {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-family: var(--body);
+  transition: background-color 0.15s ease;
+}
+
+.navbar__account-logout:hover {
+  background: var(--sand-tint);
+  color: var(--ink);
+}
+
 @media (max-width: 768px) {
   .navbar {
     height: 74px;
     padding: 0 20px;
+  }
+
+  .navbar__account-link {
+    font-size: 13px;
   }
 }
