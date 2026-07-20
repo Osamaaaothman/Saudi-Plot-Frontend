@@ -152,6 +152,7 @@
 
 /* 2D space-plan illustration */
 .view-container-plan {
+  position: relative;
   background-image:
     linear-gradient(rgba(41, 35, 27, 0.045) 1px, transparent 1px),
     linear-gradient(90deg, rgba(41, 35, 27, 0.045) 1px, transparent 1px);
@@ -159,6 +160,59 @@
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
+}
+
+.view-container-plan-image {
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.plan-image {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  object-fit: contain;
+  background: var(--paper-strong);
+  display: block;
+}
+
+.plan-image-upload {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(41, 35, 27, 0.12);
+}
+
+.plan-image-upload:hover {
+  background: var(--sand-tint);
+}
+
+.plan-image-upload input {
+  display: none;
+}
+
+.plan-image-error {
+  margin: 0.6rem 0 0;
+  font-size: 0.78rem;
+  color: #b91c1c;
+}
+
+.view-container-plan .plan-image-upload {
+  position: static;
+  align-self: flex-start;
+  box-shadow: none;
 }
 
 .plan-plot-tag {
@@ -260,69 +314,6 @@
   font-size: 0.75rem;
   color: var(--muted-light);
   padding: 0.4rem;
-}
-
-/* Sidebar: summary card */
-.summary-card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 1rem;
-  box-shadow: 0 10px 28px rgba(41, 35, 27, 0.07);
-  padding: 1.1rem 1.15rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-}
-
-.summary-card__title {
-  margin: 0 0 0.3rem 0;
-  font-family: var(--display);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-.summary-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.35rem 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.summary-row:last-of-type {
-  border-bottom: none;
-}
-
-.summary-row__label {
-  font-size: 0.8rem;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.summary-row__value {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--ink);
-  text-align: left;
-}
-
-.summary-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.35rem;
-  background: var(--sand-tint);
-  color: var(--olive-dark);
-  border-radius: 0.6rem;
-  padding: 0.5rem 0.7rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.summary-badge svg {
-  flex-shrink: 0;
 }
 
 /* Action buttons (uses shared Button component) */

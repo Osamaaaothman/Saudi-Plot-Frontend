@@ -3,22 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Navbar from "../../Components/Navbar/Navbar";
 import Button from "../../Components/Button/Button";
-import { AccessibilityIcon } from "../../Components/WizardIcons/WizardIcons";
 import usePageTitle from "../../hooks/usePageTitle";
 import { useFormStore } from "../../Store/useFormStore";
 import { useAuthStore } from "../../Store/useAuthStore";
 import { saveProject } from "../../lib/projects";
+import { uploadPlanImage } from "../../lib/cloudinary";
 import "./Result3D.css";
 
 // MapLibre GL is a heavy dependency (~1MB) — only fetch it once someone
 // actually opens the map tab, instead of bundling it into every page load.
 const PlotMapView = lazy(() => import("../../Components/PlotMapView/PlotMapView"));
-
-const RECEPTION_LABEL_KEYS = {
-  independent: "q3.option1",
-  split: "q3.option2",
-  "living-room": "q3.option3",
-};
 
 // Rough per-space footprint used only to size the illustrative space plan —
 // not a real architectural layout, just a proportional block per room type
@@ -102,6 +96,15 @@ function ShareIcon() {
   );
 }
 
+function UploadIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true">
+      <path d="M12 15V4m0 0-3.5 3.5M12 4l3.5 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 15v2.5A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5V15" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 const Result3D = () => {
   const { t } = useTranslation();
   usePageTitle(t("result3d.title"));
@@ -110,34 +113,44 @@ const Result3D = () => {
   const [projectName, setProjectName] = useState("");
   const [savingProject, setSavingProject] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageError, setImageError] = useState("");
 
   const session = useAuthStore((state) => state.session);
   const landCoordinates = useFormStore((state) => state.landCoordinates);
   const landDimensions = useFormStore((state) => state.landDimensions);
   const landRotation = useFormStore((state) => state.landRotation);
-  const familyMembers = useFormStore((state) => state.familyMembers);
-  const hasElderly = useFormStore((state) => state.hasElderly);
-  const guestReceptionId = useFormStore((state) => state.guestReceptionId);
-  const kitchenType = useFormStore((state) => state.kitchenType);
   const roomCatalog = useFormStore((state) => state.roomCatalog);
   const snapshotForSave = useFormStore((state) => state.snapshotForSave);
+  const planImageUrl = useFormStore((state) => state.planImageUrl);
+  const setPlanImageUrl = useFormStore((state) => state.setPlanImageUrl);
 
   const width = Number(landDimensions?.width) || 0;
   const height = Number(landDimensions?.height) || 0;
-  const areaM2 = width * height;
   const dimsLabel =
     width && height
       ? t("map.dims_label", { width: formatNumber(width), height: formatNumber(height) })
       : "—";
-  const areaLabel = areaM2 ? t("result3d.unit_m2", { value: formatNumber(areaM2) }) : "—";
-  const totalFamily = (familyMembers?.adults || 0) + (familyMembers?.children || 0);
-  const totalBedrooms = (roomCatalog?.master || 0) + (roomCatalog?.bedroom || 0);
-  const receptionLabel = t(RECEPTION_LABEL_KEYS[guestReceptionId] || "q3.option1");
 
   const roomBlocks = useMemo(
     () => ROOM_BLOCKS.filter((block) => (roomCatalog?.[block.id] || 0) > 0),
     [roomCatalog]
   );
+
+  async function handleImageUpload(event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setImageError("");
+    setUploadingImage(true);
+    const { url, error } = await uploadPlanImage(file);
+    setUploadingImage(false);
+    if (error) {
+      setImageError(error === "not_configured" ? t("result3d.image_not_configured") : t("result3d.image_upload_failed"));
+      return;
+    }
+    setPlanImageUrl(url);
+  }
 
   async function handleSaveProject(event) {
     event.preventDefault();
@@ -208,33 +221,45 @@ const Result3D = () => {
                   </Suspense>
                 </div>
               ) : (
-                <div className="view-container view-container-plan">
-                  <div className="plan-plot-tag">
-                    <span>{t("result3d.plan_land_label")}</span>
-                    <strong>{dimsLabel}</strong>
-                  </div>
-
-                  {roomBlocks.length > 0 ? (
-                    <div className="plan-grid">
-                      {roomBlocks.map((block) => {
-                        const count = roomCatalog[block.id];
-                        return (
-                          <div
-                            key={block.id}
-                            className={`plan-room plan-room--${block.color}`}
-                            style={{ gridColumn: `span ${block.span}` }}
-                          >
-                            <span className="plan-room__label">{t(block.labelKey)}</span>
-                            {count > 1 && <span className="plan-room__count">×{count}</span>}
-                          </div>
-                        );
-                      })}
-                    </div>
+                <div className={planImageUrl ? "view-container view-container-plan-image" : "view-container view-container-plan"}>
+                  {planImageUrl ? (
+                    <img className="plan-image" src={planImageUrl} alt={t("result3d.plan_land_label")} />
                   ) : (
-                    <p className="plan-empty">{t("result3d.plan_empty")}</p>
+                    <>
+                      <div className="plan-plot-tag">
+                        <span>{t("result3d.plan_land_label")}</span>
+                        <strong>{dimsLabel}</strong>
+                      </div>
+
+                      {roomBlocks.length > 0 ? (
+                        <div className="plan-grid">
+                          {roomBlocks.map((block) => {
+                            const count = roomCatalog[block.id];
+                            return (
+                              <div
+                                key={block.id}
+                                className={`plan-room plan-room--${block.color}`}
+                                style={{ gridColumn: `span ${block.span}` }}
+                              >
+                                <span className="plan-room__label">{t(block.labelKey)}</span>
+                                {count > 1 && <span className="plan-room__count">×{count}</span>}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p className="plan-empty">{t("result3d.plan_empty")}</p>
+                      )}
+                    </>
                   )}
+
+                  <label className="plan-image-upload">
+                    <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
+                    <UploadIcon /> {uploadingImage ? t("auth.loading") : planImageUrl ? t("result3d.replace_image_btn") : t("result3d.upload_image_btn")}
+                  </label>
                 </div>
               )}
+              {imageError && <p className="plan-image-error">{imageError}</p>}
 
               <div className="view-footer">
                 <span>{t("result3d.footer")}</span>
@@ -243,42 +268,6 @@ const Result3D = () => {
 
             {/* RIGHT COLUMN (visually): sidebar — placed FIRST in DOM */}
             <div className="house-plan-sidebar">
-              <div className="summary-card">
-                <h3 className="summary-card__title">{t("result3d.summary_title")}</h3>
-
-                <div className="summary-row">
-                  <span className="summary-row__label">{t("result3d.summary_total")}</span>
-                  <span className="summary-row__value">{areaLabel}</span>
-                </div>
-                <div className="summary-row">
-                  <span className="summary-row__label">{t("result3d.summary_dims")}</span>
-                  <span className="summary-row__value">{dimsLabel}</span>
-                </div>
-                <div className="summary-row">
-                  <span className="summary-row__label">{t("result3d.summary_bedrooms")}</span>
-                  <span className="summary-row__value">{totalBedrooms}</span>
-                </div>
-                <div className="summary-row">
-                  <span className="summary-row__label">{t("result3d.summary_kitchen")}</span>
-                  <span className="summary-row__value">{kitchenType}</span>
-                </div>
-                <div className="summary-row">
-                  <span className="summary-row__label">{t("result3d.summary_reception")}</span>
-                  <span className="summary-row__value">{receptionLabel}</span>
-                </div>
-                <div className="summary-row">
-                  <span className="summary-row__label">{t("result3d.summary_family")}</span>
-                  <span className="summary-row__value">{totalFamily}</span>
-                </div>
-
-                {hasElderly && (
-                  <div className="summary-badge">
-                    <AccessibilityIcon />
-                    <span>{t("result3d.elderly_badge")}</span>
-                  </div>
-                )}
-              </div>
-
               <form className="save-project" onSubmit={handleSaveProject}>
                 <input
                   type="text"
