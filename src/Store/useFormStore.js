@@ -54,6 +54,13 @@ export const useFormStore = create((set, get) => ({
   landRotation: 0,
   setLandRotation: (landRotation) => set({ landRotation }),
 
+  // 2D floor plan image (generated externally, uploaded to Cloudinary — see
+  // src/lib/cloudinary.js). Null until one has been generated/uploaded, in
+  // which case the Result page shows this image instead of the placeholder
+  // room-block grid.
+  planImageUrl: null,
+  setPlanImageUrl: (planImageUrl) => set({ planImageUrl }),
+
   // Collected answers (UI-friendly form).
   familyMembers: { adults: 4, children: 3 },
   hasElderly: true,
@@ -93,6 +100,7 @@ export const useFormStore = create((set, get) => ({
       landDimensions: state.landDimensions,
       landCoordinates: state.landCoordinates,
       landRotation: state.landRotation,
+      planImageUrl: state.planImageUrl,
       familyMembers: state.familyMembers,
       hasElderly: state.hasElderly,
       guestReceptionId: state.guestReceptionId,

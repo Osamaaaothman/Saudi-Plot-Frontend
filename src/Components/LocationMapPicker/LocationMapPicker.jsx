@@ -141,10 +141,11 @@ export default function LocationMapPicker({
     centerMarkerRef.current = centerMarker;
 
     const cornerMarkers = CORNER_CURSORS.map(
-      (cursor) => new maplibregl.Marker({ element: makeHandleEl("map-picker__corner-handle", cursor) })
+      (cursor) => new maplibregl.Marker({ draggable: true, element: makeHandleEl("map-picker__corner-handle", cursor) })
     );
     cornerMarkersRef.current = cornerMarkers;
     const rotateMarker = new maplibregl.Marker({
+      draggable: true,
       element: makeHandleEl("map-picker__rotate-handle", "grab"),
     });
     rotateMarkerRef.current = rotateMarker;
