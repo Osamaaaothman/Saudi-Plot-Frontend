@@ -388,7 +388,9 @@ const Result3D = () => {
                   <button type="button" className="format-btn format-btn--disabled" disabled>
                     DXF <span className="format-btn-badge">{t("result3d.soon")}</span>
                   </button>
-                  <button type="button" className="format-btn">SVG</button>
+                  <button type="button" className="format-btn format-btn--disabled" disabled>
+                    IFC <span className="format-btn-badge">{t("result3d.soon")}</span>
+                  </button>
                 </div>
               </div>
             </div>
