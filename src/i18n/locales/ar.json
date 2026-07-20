@@ -152,7 +152,7 @@
   "manual.retry": "إعادة المحاولة بصورة أوضح",
   "manual.divider": "— أو —",
   "generating.title": "نصمّم مخططك الآن...",
-  "generating.hint": "عادةً يستغرق هذا أقل من دقيقة",
+  "generating.hint": "عادةً ما يستغرق بضع دقائق",
   "generating.success_title": "اكتمل تصميم مخططك!",
   "generating.success_hint": "جارٍ نقلك إلى النتيجة...",
   "generating.step1": "قرأنا بيانات أرضك من الصك",

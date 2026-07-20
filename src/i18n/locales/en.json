@@ -152,7 +152,7 @@
   "manual.retry": "Try again with a clearer image",
   "manual.divider": "— or —",
   "generating.title": "Designing your plan now...",
-  "generating.hint": "This usually takes less than a minute",
+  "generating.hint": "This usually takes a few minutes",
   "generating.success_title": "Your plan is ready!",
   "generating.success_hint": "Redirecting to the result...",
   "generating.step1": "We read your land data from the deed",
